@@ -14,51 +14,30 @@
     h1 { margin: 12px 0 10px; font-size: clamp(32px, 7vw, 54px); line-height: 1; letter-spacing: -.045em; }
     .intro { max-width: 620px; margin: 0; color: #b9adbd; font-size: 14px; line-height: 1.65; }
     .pages { display: grid; gap: 10px; margin-top: 32px; }
-    .page { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 18px; border: 1px solid #443649; border-radius: 15px; background: rgba(27, 21, 32, .9); box-shadow: 0 10px 30px #0002; transition: border-color .18s ease, transform .18s ease, background .18s ease; }
+    .page { display: flex; align-items: center; gap: 16px; padding: 17px 18px; border: 1px solid #443649; border-radius: 15px; background: rgba(27, 21, 32, .9); box-shadow: 0 10px 30px #0002; transition: border-color .18s ease, transform .18s ease, background .18s ease; }
     .page:hover { transform: translateY(-2px); border-color: #866c3e; background: #251d2b; }
     .info { min-width: 0; }
-    .info h2 { margin: 0; color: #f5efe5; font-size: 16px; font-weight: 750; }
+    .info h2 { margin: 0; font-size: 16px; font-weight: 750; }
+    .page-link { color: #f5efe5; font-size: inherit; font-weight: inherit; text-decoration: none; }
+    .page-link:hover { color: #f1c76c; }
     .info code { display: block; margin-top: 5px; color: #a99cad; font-size: 12px; overflow-wrap: anywhere; }
-    .links { display: flex; flex-shrink: 0; align-items: center; gap: 15px; }
-    a { color: #f1c76c; font-size: 12px; font-weight: 750; text-decoration: none; }
-    a:hover { text-decoration: underline; text-underline-offset: 3px; }
-    .open-link { color: #d0c7d4; font-weight: 600; }
     footer { margin-top: 22px; color: #8e8493; font-size: 11px; line-height: 1.5; }
-    @media (max-width: 560px) { .page { align-items: flex-start; flex-direction: column; } .links { width: 100%; justify-content: space-between; padding-top: 3px; } }
+    @media (max-width: 560px) { .page { align-items: flex-start; } }
   </style>
 </head>
 <body>
   <main>
-    <div class="eyebrow">Adomantra · Gratification</div>
-    <h1>HTML Source Pages</h1>
-    <p class="intro">Choose <strong>View source</strong> to open the plain HTML code, or <strong>Open page</strong> to see the live experience.</p>
+    <h1>Gratification Pages</h1>
     <section class="pages" aria-label="Gratification pages">
-      <article class="page">
-        <div class="info"><h2>Offer Chatbot</h2><code>offer-chatbot.html</code></div>
-        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/offer-chatbot.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="offer-chatbot.html" target="_blank" rel="noopener">Open page ↗</a></div>
-      </article>
-      <article class="page">
-        <div class="info"><h2>Main Website</h2><code>index.html</code></div>
-        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/index.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="index.html" target="_blank" rel="noopener">Open page ↗</a></div>
-      </article>
-      <article class="page">
-        <div class="info"><h2>Instant Rewards</h2><code>instant_reward.html</code></div>
-        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/instant_reward.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="instant_reward.html" target="_blank" rel="noopener">Open page ↗</a></div>
-      </article>
-      <article class="page">
-        <div class="info"><h2>Lucky Wheel</h2><code>lucky-wheel.html</code></div>
-        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/lucky-wheel.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="lucky-wheel.html" target="_blank" rel="noopener">Open page ↗</a></div>
-      </article>
-      <article class="page">
-        <div class="info"><h2>AR Gratification</h2><code>ar_gratification.html</code></div>
-        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/ar_gratification.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="ar_gratification.html" target="_blank" rel="noopener">Open page ↗</a></div>
-      </article>
-      <article class="page">
-        <div class="info"><h2>Football Goal Challenge</h2><code>sports/football.html</code></div>
-        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/sports/football.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="sports/football.html" target="_blank" rel="noopener">Open page ↗</a></div>
-      </article>
+      <article class="page"><div class="info"><h2><a class="page-link" href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/offer-chatbot.html" target="_blank" rel="noopener">Offer Chatbot ↗</a></h2><code>offer-chatbot.html</code></div></article>
+      <article class="page"><div class="info"><h2><a class="page-link" href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/index.html" target="_blank" rel="noopener">Main Website ↗</a></h2><code>index.html</code></div></article>
+      <article class="page"><div class="info"><h2><a class="page-link" href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/instant_reward.html" target="_blank" rel="noopener">Instant Rewards ↗</a></h2><code>instant_reward.html</code></div></article>
+      <article class="page"><div class="info"><h2><a class="page-link" href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/lucky-wheel.html" target="_blank" rel="noopener">Lucky Wheel ↗</a></h2><code>lucky-wheel.html</code></div></article>
+      <article class="page"><div class="info"><h2><a class="page-link" href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/ar_gratification.html" target="_blank" rel="noopener">AR Gratification ↗</a></h2><code>ar_gratification.html</code></div></article>
+      <article class="page"><div class="info"><h2><a class="page-link" href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/sports/football.html" target="_blank" rel="noopener">Football Goal Challenge ↗</a></h2><code>sports/football.html</code></div></article>
+      <article class="page"><div class="info"><h2><a class="page-link" href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/royal-slot.html" target="_blank" rel="noopener">Royal Slot ↗</a></h2><code>royal-slot.html</code></div></article>
     </section>
-    <footer>Source links open the HTML file directly from the repository. The GitHub Pages site URL includes the repository name: <code>/adomantra-gratification/</code>.</footer>
+    <footer>Click a page name to open its raw HTML code from the repository.</footer>
   </main>
 </body>
 </html>
