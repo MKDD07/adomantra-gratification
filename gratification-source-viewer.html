@@ -3,128 +3,62 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Adomantra Gratification — Source Library</title>
+  <meta name="theme-color" content="#111018">
+  <title>Gratification Pages · HTML Source</title>
   <style>
-    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0b0911; color: #f6f1e8; }
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #111018; color: #f6f1e8; }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at 82% 0%, #34203e 0, #17111f 35%, #0b0911 75%); }
-    .shell { width: min(1180px, 100%); min-height: 100vh; margin: auto; padding: 38px clamp(18px, 4vw, 48px); }
-    header { margin-bottom: 28px; }
+    body { min-height: 100vh; margin: 0; background: radial-gradient(ellipse at 85% 0%, #382440 0, #1a1520 38%, #111018 78%); }
+    main { width: min(880px, 100%); margin: auto; padding: clamp(28px, 7vw, 72px) clamp(18px, 5vw, 44px); }
     .eyebrow { color: #e8bf66; font-size: 11px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
-    h1 { margin: 9px 0 8px; font-size: clamp(30px, 5vw, 48px); line-height: 1.05; letter-spacing: -.04em; }
-    header p { max-width: 660px; margin: 0; color: #b9adbd; font-size: 14px; line-height: 1.6; }
-    .workspace { display: grid; grid-template-columns: minmax(230px, 300px) minmax(0, 1fr); gap: 18px; align-items: start; }
-    .library, .viewer { border: 1px solid #443649; border-radius: 18px; background: rgba(23, 17, 29, .88); box-shadow: 0 18px 50px #0005; }
-    .library { padding: 13px; }
-    .library-title { padding: 7px 9px 13px; color: #a99cad; font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
-    .page-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; margin-bottom: 7px; padding: 9px; border: 1px solid transparent; border-radius: 12px; transition: background .18s ease, border-color .18s ease; }
-    .page-item:hover, .page-item.active { border-color: #705530; background: #2b2033; }
-    .source-button { display: block; width: 100%; padding: 5px 4px; border: 0; color: #f7f1e8; background: none; text-align: left; cursor: pointer; font: inherit; }
-    .source-button strong { display: block; font-size: 14px; font-weight: 750; }
-    .source-button code { display: block; margin-top: 4px; color: #aa9db1; font-size: 11px; overflow-wrap: anywhere; }
-    .open-link { color: #f1c76c; font-size: 11px; font-weight: 750; text-decoration: none; white-space: nowrap; }
-    .open-link:hover { text-decoration: underline; }
-    .viewer { min-width: 0; overflow: hidden; }
-    .viewer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 17px; border-bottom: 1px solid #3a2e40; }
-    .file-meta { min-width: 0; }
-    .file-meta strong { display: block; font-size: 14px; overflow-wrap: anywhere; }
-    .file-meta span { display: block; margin-top: 4px; color: #a99cad; font-size: 11px; }
-    .actions { display: flex; gap: 7px; flex-shrink: 0; }
-    .actions button { padding: 8px 11px; border: 1px solid #66516e; border-radius: 9px; color: #f5e9ce; background: #302339; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 700; }
-    .actions button:hover { border-color: #e2bd70; }
-    .code-wrap { height: min(72vh, 760px); min-height: 390px; overflow: auto; background: #100d15; }
-    pre { margin: 0; padding: 18px; color: #e7dfeb; font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size: 2; white-space: pre; }
-    #empty { color: #a99cad; }
-    #error { display: none; margin: 15px; padding: 12px; border: 1px solid #824947; border-radius: 10px; color: #ffd1cb; background: #3a1e24; font-size: 13px; line-height: 1.5; }
-    @media (max-width: 760px) { .shell { padding-top: 26px; } .workspace { grid-template-columns: 1fr; } .library { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; } .library-title { grid-column: 1 / -1; } .page-item { margin-bottom: 0; } .code-wrap { height: 58vh; } }
-    @media (max-width: 460px) { .library { grid-template-columns: 1fr; } .viewer-head { align-items: flex-start; flex-direction: column; } .actions { width: 100%; } .actions button { flex: 1; } }
+    h1 { margin: 12px 0 10px; font-size: clamp(32px, 7vw, 54px); line-height: 1; letter-spacing: -.045em; }
+    .intro { max-width: 620px; margin: 0; color: #b9adbd; font-size: 14px; line-height: 1.65; }
+    .pages { display: grid; gap: 10px; margin-top: 32px; }
+    .page { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 18px; border: 1px solid #443649; border-radius: 15px; background: rgba(27, 21, 32, .9); box-shadow: 0 10px 30px #0002; transition: border-color .18s ease, transform .18s ease, background .18s ease; }
+    .page:hover { transform: translateY(-2px); border-color: #866c3e; background: #251d2b; }
+    .info { min-width: 0; }
+    .info h2 { margin: 0; color: #f5efe5; font-size: 16px; font-weight: 750; }
+    .info code { display: block; margin-top: 5px; color: #a99cad; font-size: 12px; overflow-wrap: anywhere; }
+    .links { display: flex; flex-shrink: 0; align-items: center; gap: 15px; }
+    a { color: #f1c76c; font-size: 12px; font-weight: 750; text-decoration: none; }
+    a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .open-link { color: #d0c7d4; font-weight: 600; }
+    footer { margin-top: 22px; color: #8e8493; font-size: 11px; line-height: 1.5; }
+    @media (max-width: 560px) { .page { align-items: flex-start; flex-direction: column; } .links { width: 100%; justify-content: space-between; padding-top: 3px; } }
   </style>
 </head>
 <body>
-  <main class="shell">
-    <header>
-      <div class="eyebrow">Adomantra · Gratification</div>
-      <h1>Source Library</h1>
-      <p>Choose a page to display its HTML source below. Use the page link to open the working experience in a new tab.</p>
-    </header>
-    <div class="workspace">
-      <nav class="library" aria-label="HTML pages">
-        <div class="library-title">Project pages</div>
-        <div class="page-item"><button class="source-button" data-file="offer-chatbot.html" data-name="Offer Chatbot"><strong>Offer Chatbot</strong><code>offer-chatbot.html</code></button><a class="open-link" href="offer-chatbot.html" target="_blank" rel="noopener">Open ↗</a></div>
-        <div class="page-item"><button class="source-button" data-file="index.html" data-name="Main Website"><strong>Main Website</strong><code>index.html</code></button><a class="open-link" href="index.html" target="_blank" rel="noopener">Open ↗</a></div>
-        <div class="page-item"><button class="source-button" data-file="instant_reward.html" data-name="Instant Rewards"><strong>Instant Rewards</strong><code>instant_reward.html</code></button><a class="open-link" href="instant_reward.html" target="_blank" rel="noopener">Open ↗</a></div>
-        <div class="page-item"><button class="source-button" data-file="lucky-wheel.html" data-name="Lucky Wheel"><strong>Lucky Wheel</strong><code>lucky-wheel.html</code></button><a class="open-link" href="lucky-wheel.html" target="_blank" rel="noopener">Open ↗</a></div>
-        <div class="page-item"><button class="source-button" data-file="ar_gratification.html" data-name="AR Gratification"><strong>AR Gratification</strong><code>ar_gratification.html</code></button><a class="open-link" href="ar_gratification.html" target="_blank" rel="noopener">Open ↗</a></div>
-        <div class="page-item"><button class="source-button" data-file="sports/football.html" data-name="Football"><strong>Football</strong><code>sports/football.html</code></button><a class="open-link" href="sports/football.html" target="_blank" rel="noopener">Open ↗</a></div>
-      </nav>
-      <section class="viewer" aria-label="HTML source viewer">
-        <div class="viewer-head">
-          <div class="file-meta"><strong id="fileName">No file selected</strong><span id="fileStatus">Select a page to load its source.</span></div>
-          <div class="actions"><button id="copyButton" type="button" disabled>Copy source</button><button id="downloadButton" type="button" disabled>Download</button></div>
-        </div>
-        <div class="code-wrap"><pre><code id="source"><span id="empty">HTML source will appear here.</span></code></pre></div>
-        <div id="error" role="alert"></div>
-      </section>
-    </div>
+  <main>
+    <div class="eyebrow">Adomantra · Gratification</div>
+    <h1>HTML Source Pages</h1>
+    <p class="intro">Choose <strong>View source</strong> to open the plain HTML code, or <strong>Open page</strong> to see the live experience.</p>
+    <section class="pages" aria-label="Gratification pages">
+      <article class="page">
+        <div class="info"><h2>Offer Chatbot</h2><code>offer-chatbot.html</code></div>
+        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/offer-chatbot.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="offer-chatbot.html" target="_blank" rel="noopener">Open page ↗</a></div>
+      </article>
+      <article class="page">
+        <div class="info"><h2>Main Website</h2><code>index.html</code></div>
+        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/index.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="index.html" target="_blank" rel="noopener">Open page ↗</a></div>
+      </article>
+      <article class="page">
+        <div class="info"><h2>Instant Rewards</h2><code>instant_reward.html</code></div>
+        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/instant_reward.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="instant_reward.html" target="_blank" rel="noopener">Open page ↗</a></div>
+      </article>
+      <article class="page">
+        <div class="info"><h2>Lucky Wheel</h2><code>lucky-wheel.html</code></div>
+        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/lucky-wheel.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="lucky-wheel.html" target="_blank" rel="noopener">Open page ↗</a></div>
+      </article>
+      <article class="page">
+        <div class="info"><h2>AR Gratification</h2><code>ar_gratification.html</code></div>
+        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/ar_gratification.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="ar_gratification.html" target="_blank" rel="noopener">Open page ↗</a></div>
+      </article>
+      <article class="page">
+        <div class="info"><h2>Football Goal Challenge</h2><code>sports/football.html</code></div>
+        <div class="links"><a href="https://raw.githubusercontent.com/MKDD07/adomantra-gratification/main/sports/football.html" target="_blank" rel="noopener">View source ↗</a><a class="open-link" href="sports/football.html" target="_blank" rel="noopener">Open page ↗</a></div>
+      </article>
+    </section>
+    <footer>Source links open the HTML file directly from the repository. The GitHub Pages site URL includes the repository name: <code>/adomantra-gratification/</code>.</footer>
   </main>
-  <script>
-    (() => {
-      const buttons = [...document.querySelectorAll('.source-button')];
-      const source = document.getElementById('source');
-      const fileName = document.getElementById('fileName');
-      const fileStatus = document.getElementById('fileStatus');
-      const errorBox = document.getElementById('error');
-      const copyButton = document.getElementById('copyButton');
-      const downloadButton = document.getElementById('downloadButton');
-      let currentSource = '';
-      let currentFile = '';
-
-      async function loadSource(button) {
-        buttons.forEach(item => item.closest('.page-item').classList.toggle('active', item === button));
-        currentFile = button.dataset.file;
-        fileName.textContent = button.dataset.name;
-        fileStatus.textContent = `Loading ${currentFile}…`;
-        source.textContent = 'Loading source…';
-        errorBox.style.display = 'none';
-        copyButton.disabled = downloadButton.disabled = true;
-        try {
-          const response = await fetch(currentFile, { cache: 'no-store' });
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          currentSource = await response.text();
-          source.textContent = currentSource;
-          fileStatus.textContent = `${currentSource.split('\n').length.toLocaleString()} lines · ${new Blob([currentSource]).size.toLocaleString()} bytes`;
-          copyButton.disabled = downloadButton.disabled = false;
-        } catch (error) {
-          currentSource = '';
-          source.textContent = '';
-          fileStatus.textContent = 'Could not load source';
-          errorBox.textContent = location.protocol === 'file:'
-            ? 'Serve this folder over HTTP (for example, with VS Code Live Server) to load files into the viewer.'
-            : `Could not load ${currentFile}: ${error.message}`;
-          errorBox.style.display = 'block';
-        }
-      }
-
-      buttons.forEach(button => button.addEventListener('click', () => loadSource(button)));
-      copyButton.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(currentSource);
-          copyButton.textContent = 'Copied';
-          setTimeout(() => copyButton.textContent = 'Copy source', 1400);
-        } catch {
-          fileStatus.textContent = 'Clipboard access is unavailable in this browser.';
-        }
-      });
-      downloadButton.addEventListener('click', () => {
-        const blob = new Blob([currentSource], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = currentFile.split('/').pop();
-        link.click();
-        URL.revokeObjectURL(url);
-      });
-    })();
-  </script>
 </body>
 </html>
