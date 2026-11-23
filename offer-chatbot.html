@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#faf9f5"><title>Avail Offers</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap">
+<style>
+:root{--bg:#faf9f5;--card:#fff;--ink:#1f1e1d;--mut:#73726c;--line:#e8e6dc;--acc:#1257A2;--accd:#1257A2;--tint:#e8f4f2;--tintb:#b9dcd7;--soft:#f0eee6;--ok:#2f7d57}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--ink);font:300 15px/1.5 Inter,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+.serif{font-family:Inter,-apple-system,"Segoe UI",sans-serif;font-weight:300;letter-spacing:-.025em}
+#app{height:100dvh;max-width:480px;margin:auto;position:relative;overflow:hidden;background:var(--bg)}
+.s{position:absolute;inset:0;display:none;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.s.on{display:flex;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+b,strong,h1,h2,h3,h4{font-weight:400}
+.ic{width:1.2em;height:1.2em;stroke:currentColor;fill:none;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round;flex:none}
+button{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:300;color:inherit;border:0;background:none;cursor:pointer}
+.btn{font-weight:400;background:var(--acc);color:#fff;border-radius:14px;padding:14px 20px;font-weight:400;width:100%}
+.btn:active{background:var(--accd)}.btn.g{background:var(--soft);color:var(--ink)}
+.star{width:44px;height:44px;color:var(--acc)}
+/* scan */
+.sc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:18px}
+.sc h1{font-size:34px;line-height:1.1}.sc p{color:var(--mut);max-width:290px}
+.vf{width:260px;height:260px;border-radius:28px;background:#2a2927;position:relative;overflow:hidden}
+.vf video{width:100%;height:100%;object-fit:cover}
+.vf i{position:absolute;width:44px;height:44px;border:4px solid var(--acc)}
+.vf i:nth-of-type(1){top:14px;left:14px;border-right:0;border-bottom:0;border-radius:14px 0 0 0}
+.vf i:nth-of-type(2){top:14px;right:14px;border-left:0;border-bottom:0;border-radius:0 14px 0 0}
+.vf i:nth-of-type(3){bottom:14px;left:14px;border-right:0;border-top:0;border-radius:0 0 0 14px}
+.vf i:nth-of-type(4){bottom:14px;right:14px;border-left:0;border-top:0;border-radius:0 0 14px 0}
+.vf b{position:absolute;left:18px;right:18px;height:2px;background:var(--acc);box-shadow:0 0 14px var(--acc);animation:ln 2.2s ease-in-out infinite alternate}
+@keyframes ln{from{top:20px}to{top:238px}}
+.acts{width:100%;display:flex;flex-direction:column;gap:10px;padding:0 24px 24px}
+/* load */
+.ld{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+.ld .star{width:64px;height:64px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.bar{width:200px;height:4px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar div{height:100%;width:0;background:var(--acc);transition:width 2.6s ease}
+#lt{color:var(--mut)}
+/* type */
+.pg{display:flex;gap:6px;padding:0 22px}.pg i{flex:1;height:3px;border-radius:3px;background:var(--line)}.pg i.on{background:var(--a,var(--acc));transition:background .3s}
+#s-type .btn{background:var(--a,var(--acc));transition:background .3s}
+.tp{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 18px}
+.tp small{color:var(--mut)}
+.hd{padding:22px 22px 14px}.hd h2{font-size:32px;line-height:1.12}.hd p{color:var(--mut);margin-top:8px}
+.tl{flex:1;overflow:auto;padding:4px 18px 16px;display:flex;flex-direction:column;gap:10px}
+.tc{flex:none;position:relative;overflow:hidden;display:flex;align-items:stretch;justify-content:flex-start;gap:0;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:16px;min-height:86px;transition:background .25s,border-color .25s;animation:in .45s both;animation-delay:calc(var(--d)*70ms)}
+.tc .st{width:104px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1.5px dashed var(--line);padding:10px 6px;transition:border-color .25s}
+.tc .st b{font-size:27px;line-height:1;color:var(--acc);transition:color .25s}
+.tc .st small{font-size:11px;color:var(--mut);margin-top:6px;transition:color .25s}
+.tc .bd{flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:12px 16px;min-width:0}
+.tc .bd b{font-size:19px;line-height:1.2;transition:color .25s}.tc .bd span{color:var(--mut);font-size:13px;line-height:1.35;margin-top:3px;transition:color .25s}
+.tc::before,.tc::after{content:"";position:absolute;left:94px;width:20px;height:20px;border-radius:50%;background:var(--bg);border:1px solid var(--line);transition:border-color .25s}
+.tc::before{top:-11px}.tc::after{bottom:-11px}
+.tc.sel{background:var(--acc);border-color:var(--acc)}
+.tc.sel .st{border-color:rgba(255,255,255,.55)}.tc.sel .st b,.tc.sel .bd b{color:#fff}.tc.sel .st small,.tc.sel .bd span{color:rgba(255,255,255,.8)}
+.tc.sel::before,.tc.sel::after{border-color:var(--acc)}
+.cta{padding:12px 18px 18px;border-top:1px solid var(--line);background:var(--bg)}
+.btn:disabled{opacity:.35;pointer-events:none}
+/* chat */
+.top{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+.top .star{width:30px;height:30px}.top div{flex:1;line-height:1.2}.top small{color:var(--ok);font-size:12px}
+.ib{width:38px;height:38px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:17px}
+#msgs{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+#msgs>*{flex:none}
+.m{max-width:84%;padding:10px 14px;border-radius:18px;white-space:pre-wrap;word-wrap:break-word;animation:in .25s}
+.m.b{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px;align-self:flex-start}
+.m.u{background:var(--acc);color:#fff;border-bottom-right-radius:6px;align-self:flex-end}
+.dots{display:flex;gap:4px;padding:14px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--mut);animation:bn 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bn{50%{transform:translateY(-5px);opacity:.4}}
+.oc{position:relative;overflow:hidden;align-self:stretch;border:1px solid var(--line);border-radius:22px;padding:14px 16px 16px;background-color:#fff;background-size:cover;background-position:center;animation:in .3s}
+.oc::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.15) 0,rgba(255,255,255,.55) 32%,rgba(255,255,255,.94) 60%,#fff 100%)}
+.oc>*{position:relative}
+.ob{display:flex;align-items:center;gap:8px}
+.bp{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.92);border-radius:24px;padding:4px 14px 4px 4px;min-width:0}
+.lg{width:30px;height:30px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-size:14px;flex:none}
+.bp b{font-size:13px;line-height:1.15;display:block}.bp small{color:var(--mut);font-size:11px;display:block}
+.oc .v{margin-left:auto;background:rgba(255,255,255,.94);color:var(--acc);border-radius:20px;padding:5px 12px;font-size:13px;white-space:nowrap}
+.oc h4{font-size:22px;margin:58px 0 2px}.oc p{color:var(--mut);font-size:13.5px}
+.oc .r{display:flex;gap:8px;margin-top:14px}.oc .r button{flex:1;padding:11px;border-radius:12px;font-weight:400;font-size:14px}
+.oc .r .c{background:var(--ink);color:#fff}.oc .r .v2{background:var(--acc);color:#fff}
+.cp{border:2px dashed var(--acc);border-radius:16px;padding:14px;text-align:center;background:var(--tint);align-self:stretch}
+.cp h3{font-size:26px;color:var(--acc);letter-spacing:.06em;margin:4px 0 10px}
+.cp .r{display:flex;gap:8px}.cp .r button{flex:1;padding:10px;border-radius:12px;background:var(--acc);color:#fff;font-weight:400}
+.cp .r .g{background:var(--soft);color:var(--ink)}
+#chips{display:flex;gap:8px;overflow-x:auto;padding:0 14px 8px;scrollbar-width:none}
+#chips:empty{display:none}#chips button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:20px;padding:8px 14px;font-size:14px}
+#chips button:active{border-color:var(--acc);background:var(--tint)}
+.in{display:flex;gap:8px;align-items:center;padding:10px 14px 14px}
+.in input{flex:1;border:1px solid var(--line);background:var(--card);border-radius:24px;padding:12px 16px;font:inherit;outline:0;min-width:0}
+.in input:focus{border-color:var(--acc)}
+.in .ib{border-radius:50%;width:44px;height:44px;flex:none}.in .go{background:var(--acc);color:#fff}
+/* call */
+.call{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:28px;background:radial-gradient(circle at 50% 30%,var(--tint),var(--bg) 70%)}
+.av{width:120px;height:120px;border-radius:50%;background:var(--acc);display:grid;place-items:center;position:relative}
+.av .star{color:#fff;width:60px;height:60px}
+.av.live::before,.av.live::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--acc);animation:pl 1.8s infinite}
+.av.live::after{animation-delay:.9s}
+@keyframes pl{to{transform:scale(1.7);opacity:0}}
+#tm{color:var(--mut);font-variant-numeric:tabular-nums}
+#tr{min-height:84px;max-width:320px;font-size:16px;font-family:Inter,sans-serif;font-weight:300}
+.end{width:68px;height:68px;border-radius:50%;background:#c0392b;color:#fff;font-size:26px;margin:0 auto 26px;display:block}
+.tt{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:9}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* 3D depth */
+.btn,.ib,.oc .r button,.cp .r button,.end,#chips button{transition:transform .08s,box-shadow .08s,background .2s}
+.btn{box-shadow:0 4px 0 var(--accd),0 12px 18px -8px rgba(15,118,110,.55)}
+.btn.g{box-shadow:0 4px 0 #d6d3c6,0 10px 16px -10px rgba(31,30,29,.3)}
+.btn:disabled{box-shadow:0 3px 0 #d6d3c6}
+.ib{box-shadow:0 3px 0 #dad7ca}
+.in .go{box-shadow:0 3px 0 var(--accd)}
+.oc .r .c{box-shadow:0 3px 0 #000,0 8px 12px -6px rgba(0,0,0,.4)}
+.oc .r .v2,.cp .r button{box-shadow:0 3px 0 var(--accd),0 8px 12px -6px rgba(15,118,110,.5)}
+.cp .r .g{box-shadow:0 3px 0 #d6d3c6}
+.end{box-shadow:0 5px 0 #962d22,0 14px 20px -8px rgba(192,57,43,.6)}
+#chips button{box-shadow:0 3px 0 #dad7ca}
+.btn:active,.ib:active,.oc .r button:active,.cp .r button:active,.end:active,#chips button:active{transform:translateY(3px);box-shadow:0 0 0 transparent}
+.tc{box-shadow:0 3px 0 #dcd9cc,0 14px 22px -14px rgba(31,30,29,.35)}
+.tc:active{top:3px;box-shadow:0 0 0 #dcd9cc}
+.tc.sel{box-shadow:0 4px 0 var(--accd),0 16px 24px -10px rgba(15,118,110,.55)}
+.oc{box-shadow:0 4px 0 #e0ddd0,0 18px 28px -16px rgba(31,30,29,.4)}
+.cp{box-shadow:0 4px 0 var(--tintb),0 14px 22px -14px rgba(15,118,110,.45)}
+.m.b{box-shadow:0 2px 0 #e3e0d4}.m.u{box-shadow:0 2px 0 var(--accd)}
+.in input{box-shadow:inset 0 2px 4px rgba(31,30,29,.06)}
+.av{box-shadow:0 6px 0 var(--accd),0 22px 32px -12px rgba(15,118,110,.6)}
+</style></head><body>
+<div id="app">
+
+<section class="s on" id="s-scan">
+ <div class="sc">
+  <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path class="sp"/></svg>
+  <h1 class="serif">Scan to avail<br>your gratitude reward</h1>
+  <div class="vf"><video id="vid" playsinline muted></video><i></i><i></i><i></i><i></i><b></b></div>
+  <p>Point your camera at the programme QR code.</p>
+ </div>
+ <div class="acts"><button class="btn" id="cam"><span data-ic="camera"></span>Open camera</button><button class="btn g" id="demo"><span data-ic="scan"></span>Use demo QR</button></div>
+</section>
+
+<section class="s" id="s-load"><div class="ld">
+ <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path class="sp"/></svg>
+ <h2 class="serif" style="font-size:26px">Opening your programme</h2>
+ <div class="bar"><div id="pb"></div></div><p id="lt">Verifying QR code…</p>
+</div></section>
+
+<section class="s" id="s-type">
+ <div class="tp"><button class="ib" id="tb"><span data-ic="chevron-left" data-s="22"></span></button><small>Step 2 of 3</small></div>
+ <div class="pg"><i class="on"></i><i class="on"></i><i></i></div>
+ <div class="hd"><h2 class="serif">Choose your gratification</h2><p>One ticket per visit. Tap the one you want.</p></div>
+ <div class="tl" id="tl"></div>
+ <div class="cta"><button class="btn" id="tc" disabled>Select a reward</button></div>
+</section>
+
+<section class="s" id="s-chat">
+ <div class="top"><button class="ib" id="bk"><span data-ic="chevron-left" data-s="22"></span></button>
+  <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path class="sp"/></svg>
+  <div><b class="serif" style="font-size:18px">Avail Offers</b><br><small id="st">Online</small></div>
+  <button class="ib" id="vc" title="Voice call"><span data-ic="phone"></span></button></div>
+ <div id="msgs"></div><div id="chips"></div>
+ <div class="in"><input id="ti" placeholder="Type your reply…" autocomplete="off"><button class="ib" id="mic"><span data-ic="mic"></span></button><button class="ib go" id="sd"><span data-ic="send"></span></button></div>
+</section>
+
+<section class="s" id="s-call">
+ <div class="call"><div class="av" id="av"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><path class="sp"/></svg></div>
+ <h2 class="serif">Avail Voice</h2><div id="tm">00:00</div><div id="tr">Connecting…</div></div>
+ <button class="end" id="end"><span data-ic="phone-off" data-s="28"></span></button>
+</section>
+</div>
+
+<script>
+const GROQ_KEY="YOUR_GROQ_API_KEY",MODEL="llama-3.3-70b-versatile";
+const P={
+camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
+scan:'<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>',
+"chevron-left":'<path d="m15 18-6-6 6-6"/>',
+phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+"phone-off":'<path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"/><path d="m22 2-20 20"/>',
+mic:'<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/>',
+send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
+cake:'<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/>',
+gem:'<path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/>',
+flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+star:'<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>',
+"message-circle":'<path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/>',
+share:'<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/>',
+copy:'<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',check:'<path d="M20 6 9 17l-5-5"/>',"arrow-right":'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>'};
+const ic=(n,z=18)=>`<svg class="ic" viewBox="0 0 24 24" width="${z}" height="${z}">${P[n]}</svg>`;
+const hyd=()=>document.querySelectorAll("[data-ic]").forEach(e=>e.outerHTML=ic(e.dataset.ic,+e.dataset.s||18));
+const $=q=>document.querySelector(q),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const TYPES=[["₹500","up to","Gratitude reward","A thank-you for being with us"],["Treat","on your day","Celebration gift","Birthdays, anniversaries, milestones"],["2×","points","Loyalty bonus","Perks for repeat customers"],["20%","festive off","Festive surprise","Seasonal offers made for you"],["₹50","per review","Feedback reward","One minute of honest feedback"],["+₹100","per friend","Referral reward","Invite friends, you both earn"]];
+const STEPS=[
+{k:"name",q:"Great choice! First, what's your name?"},
+{k:"phone",q:"Thanks! Your 10-digit mobile number?",v:/^[6-9]\d{9}$/,e:"Enter a valid 10-digit Indian mobile number."},
+{k:"city",q:"Which city are you in?",c:["Delhi","Gurugram","Noida","Mumbai","Other"]},
+{k:"src",q:"Quick questions. How did you hear about us?",c:["Social media","Friend","Store visit","Advertisement"]},
+{k:"rate",q:"How was your recent experience?",c:["1 · Poor","2","3 · Okay","4","5 · Great"]},
+{k:"val",q:"What do you value most?",c:["Discounts","Quality","Service","Speed"]},
+{k:"code",q:"Almost done. Enter the code you received (example: GRT-4821).",v:/^[A-Za-z0-9-]{5,12}$/,e:"Code should be 5–12 letters or numbers."}];
+const FALLBACK=[{brand:"Brewline Café",cat:"coffee",title:"Flat 20% off on coffee",desc:"On your next order, valid 30 days.",value:"20% OFF",code:"BREW20"},{brand:"Swift Eats",cat:"food",title:"Free delivery",desc:"On any 3 orders this month.",value:"FREE SHIP",code:"SHIP3"},{brand:"Trendly",cat:"fashion",title:"₹100 cashback",desc:"On orders above ₹799.",value:"₹100",code:"TREND100"}];
+const IMG={food:"photo-1504674900247-0877df9cc836",coffee:"photo-1495474472287-4d71bcdd2085",fashion:"photo-1441986300917-64674bd600d8",travel:"photo-1488646953014-85cb44e25828",beauty:"photo-1522335789203-aabd1fc54bc9",shopping:"photo-1556742049-0cfed4f6a45d"};
+const CATN={food:"Food",coffee:"Café",fashion:"Fashion",travel:"Travel",beauty:"Beauty",shopping:"Shopping"};
+let S={},mode="",busy=0,hist=[],inCall=0,rec=null,tmr=null;
+
+function go(id){document.querySelectorAll(".s").forEach(s=>s.classList.toggle("on",s.id==="s-"+id))}
+function toast(t){const d=document.createElement("div");d.className="tt";d.textContent=t;document.body.append(d);setTimeout(()=>d.remove(),2200)}
+function reset(){S={i:0,info:{}};hist=[];$("#msgs").innerHTML="";$("#chips").innerHTML="";mode=""}
+
+/* 1 · QR */
+let stream=null,scanOn=0;
+$("#cam").onclick=async()=>{
+ try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});const v=$("#vid");v.srcObject=stream;await v.play();
+  if(!("BarcodeDetector"in window)){toast("Auto-scan unsupported — use demo QR");return}
+  const d=new BarcodeDetector({formats:["qr_code"]});scanOn=1;
+  (async function l(){if(!scanOn)return;try{const r=await d.detect(v);if(r.length){found();return}}catch(e){}setTimeout(l,300)})();
+ }catch(e){toast("Camera blocked — use demo QR")}};
+$("#demo").onclick=()=>found();
+function found(){scanOn=0;stream&&stream.getTracks().forEach(t=>t.stop());stream=null;navigator.vibrate&&navigator.vibrate(60);load()}
+
+/* 2 · Loading */
+async function load(){go("load");const m=["Verifying QR code…","Finding your gratification…","Preparing your programme…"];
+ requestAnimationFrame(()=>$("#pb").style.width="100%");
+ for(const t of m){$("#lt").textContent=t;await sleep(900)}
+ $("#pb").style.width="0";types()}
+
+/* 3 · Types */
+function types(){let pk=-1;const cb=$("#tc");cb.disabled=true;cb.textContent="Select a reward";
+ $("#tl").innerHTML=TYPES.map((t,i)=>`<button class="tc" data-i="${i}" style="--d:${i}"><div class="st"><b class="serif">${t[0]}</b><small>${t[1]}</small></div><div class="bd"><b class="serif">${t[2]}</b><span>${t[3]}</span></div></button>`).join("");
+ go("type");const all=document.querySelectorAll(".tc");
+ all.forEach(b=>b.onclick=()=>{pk=+b.dataset.i;all.forEach(x=>x.classList.toggle("sel",x===b));cb.disabled=false;cb.innerHTML=`Continue with ${TYPES[pk][2]}${ic("arrow-right",18)}`;navigator.vibrate&&navigator.vibrate(15)});
+ cb.onclick=()=>{if(pk<0)return;reset();S.type=TYPES[pk][2];startChat()};
+ $("#tb").onclick=()=>go("scan")}
+
+/* 4 · Chat */
+function msg(t,w="b"){const d=document.createElement("div");d.className="m "+w;d.textContent=t;$("#msgs").append(d);sc();return d}
+function sc(){const m=$("#msgs");m.scrollTop=m.scrollHeight}
+async function bot(t,ms=550){const d=document.createElement("div");d.className="m b dots";d.innerHTML="<i></i><i></i><i></i>";$("#msgs").append(d);sc();await sleep(ms);d.remove();return msg(t)}
+function chips(l,cb){const c=$("#chips");c.innerHTML="";l.forEach(v=>{const b=document.createElement("button");b.textContent=v;b.onclick=()=>{c.innerHTML="";cb(v)};c.append(b)})}
+async function startChat(){go("chat");await bot(`Hi! I'm your Avail assistant. You selected "${S.type}". Let's get you your reward.`);ask()}
+async function ask(){const s=STEPS[S.i];busy=1;await bot(s.q);busy=0;mode="flow";chips(s.c||[],send)}
+function send(v){v=(v||"").trim();if(!v||busy)return;$("#ti").value="";$("#chips").innerHTML="";msg(v,"u");
+ if(mode==="flow"){const s=STEPS[S.i];if(s.v&&!s.v.test(v)){bot(s.e);return}
+  S.info[s.k]=s.k==="code"?v.toUpperCase():v;S.i++;S.i<STEPS.length?ask():findOffers()}
+ else if(mode==="upi")upiIn(v);
+ else if(mode==="ai")chat(v)}
+$("#sd").onclick=()=>send($("#ti").value);$("#ti").onkeydown=e=>{if(e.key==="Enter")send($("#ti").value)};
+$("#bk").onclick=()=>{stopCall();go("type")};
+
+/* Groq */
+const sys=()=>`You are Avail, a warm assistant for a "${S.type}" gratification programme. User: ${JSON.stringify(S.info)}. ${S.offer?"Chosen offer: "+JSON.stringify(S.offer)+".":""} Reply in under 35 words, friendly, no markdown.`;
+async function groq(m,json){if(!GROQ_KEY||GROQ_KEY.startsWith("YOUR"))throw 0;
+ const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+GROQ_KEY},body:JSON.stringify({model:MODEL,messages:m,temperature:.7,max_tokens:400,...(json?{response_format:{type:"json_object"}}:{})})});
+ if(!r.ok)throw 0;return(await r.json()).choices[0].message.content}
+async function ai(t){hist.push({role:"user",content:t});let a;try{a=await groq([{role:"system",content:sys()},...hist.slice(-10)])}catch(e){a="I'm offline right now, but your offer is saved. Tap an offer above to continue."}hist.push({role:"assistant",content:a});return a}
+async function chat(t){busy=1;const d=document.createElement("div");d.className="m b dots";d.innerHTML="<i></i><i></i><i></i>";$("#msgs").append(d);sc();const a=await ai(t);d.remove();msg(a);busy=0}
+
+/* 5 · Offers */
+async function findOffers(){busy=1;await bot("Checking your code "+S.info.code+"…",700);await bot("Code verified. Finding the best offers for you…",800);
+ let o;try{const j=await groq([{role:"system",content:"Return ONLY JSON: {\"offers\":[{\"brand\":\"\",\"cat\":\"\",\"title\":\"\",\"desc\":\"\",\"value\":\"\",\"code\":\"\"}]} with exactly 3 realistic offers from 3 different fictional brands (never real company names). cat must be one of food, coffee, fashion, travel, beauty, shopping. title ≤5 words, value ≤10 chars, code 5-8 uppercase chars. Match the user and programme."},{role:"user",content:`Programme: ${S.type}. User: ${JSON.stringify(S.info)}`}],1);o=JSON.parse(j).offers.slice(0,3);if(!o.length)throw 0}catch(e){o=FALLBACK}
+ S.offers=o;await bot(`Here are 3 offers for you, ${S.info.name}. Avail via chat or voice call:`);
+ o.forEach((x,i)=>{const d=document.createElement("div");d.className="oc";
+  const u=`https://images.unsplash.com/${IMG[x.cat]||IMG.shopping}?auto=format&fit=crop&w=700&q=60`;
+  d.style.backgroundImage=`url("${u}"),linear-gradient(135deg,#b9dcd7,#e8f4f2)`;
+  d.innerHTML=`<div class="ob"><div class="bp"><span class="lg">${esc((x.brand||"A")[0].toUpperCase())}</span><div><b>${esc(x.brand||"Avail")}</b><small>${CATN[x.cat]||"Offer"}</small></div></div><span class="v">${esc(String(x.value))}</span></div><h4 class="serif">${esc(x.title)}</h4><p>${esc(x.desc)}</p><div class="r"><button class="c" data-i="${i}">${ic("message-circle",16)}Chat</button><button class="v2" data-i="${i}">${ic("phone",16)}Voice</button></div>`;
+  d.querySelector(".c").onclick=()=>availChat(i);d.querySelector(".v2").onclick=()=>openCall(i);$("#msgs").append(d)});
+ sc();busy=0;mode="ai"}
+async function availChat(i){if(busy)return;S.offer=S.offers[i];busy=1;msg("I'll avail: "+S.offer.title,"u");
+ let t;try{t=await groq([{role:"system",content:sys()},{role:"user",content:"Confirm my offer and tell me in one line how to redeem it."}])}catch(e){t=`Your "${S.offer.title}" is confirmed. Show the code below at checkout.`}
+ await bot(t);busy=0;coupon()}
+function coupon(){const o=S.offer,d=document.createElement("div");d.className="cp";
+ d.innerHTML=`<small>Your coupon</small><h3 class="serif">${esc(o.code)}</h3><div class="r"><button class="g">${ic("copy",16)}Copy</button></div>`;
+ d.querySelector("button").onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(o.code);toast("Coupon copied")};
+ $("#msgs").append(d);sc();bonus()}
+
+/* 6 · UPI bonus */
+async function bonus(){busy=1;mode="";await bot("Bonus: you've also earned a ₹"+(S.amt=[21,51,101][Math.floor(Math.random()*3)])+" UPI reward. Share your UPI ID to receive it (example: name@upi).",900);busy=0;mode="upi"}
+async function upiIn(v){if(!/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(v)){bot("That doesn't look like a UPI ID. Use the format name@bank.");return}
+ busy=1;S.upi=v;await bot("Sending ₹"+S.amt+" to "+v+"…",900);const ref="AVL"+Date.now().toString(36).toUpperCase().slice(-6);S.ref=ref;
+ await bot("Reward queued. Share your reward code with friends — they get a bonus too.");
+ const d=document.createElement("div");d.className="cp";
+ d.innerHTML=`<small>UPI reward code · ₹${S.amt}</small><h3 class="serif">${ref}</h3><div class="r"><button class="sh">${ic("share",16)}Share</button><button class="g cb">${ic("copy",16)}Copy</button><button class="g nw">${ic("plus",16)}New</button></div>`;
+ const tx=`I got ₹${S.amt} UPI reward from Avail Offers! Use my code ${ref} to claim yours.`;
+ d.querySelector(".sh").onclick=()=>navigator.share?navigator.share({text:tx}).catch(()=>{}):location.href="https://wa.me/?text="+encodeURIComponent(tx);
+ d.querySelector(".cb").onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(tx);toast("Copied")};
+ d.querySelector(".nw").onclick=()=>{stopCall();go("scan")};
+ $("#msgs").append(d);sc();busy=0;mode="ai"}
+
+/* Voice (VoIP-style) */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+$("#vc").onclick=()=>S.offers?openCall(0):toast("Complete the steps first");
+$("#mic").onclick=()=>{if(!SR)return toast("Voice input unsupported");const r=new SR();r.lang="en-IN";r.onresult=e=>send(e.results[0][0].transcript);r.start();toast("Listening…")};
+function speak(t){return new Promise(r=>{if(!speechSynthesis)return r();speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-IN";u.onend=r;u.onerror=r;speechSynthesis.speak(u)})}
+async function openCall(i){if(!SR){toast("Voice not supported on this browser");return}
+ if(S.offers)S.offer=S.offers[i];go("call");inCall=1;$("#av").classList.add("live");let s=0;clearInterval(tmr);
+ tmr=setInterval(()=>{s++;$("#tm").textContent=String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")},1e3);
+ const g=`Hi ${S.info.name||""}! I'm Avail. Your offer from ${S.offer.brand||"us"} is ${S.offer.title}. Say "confirm" to claim it, or ask me anything.`;
+ $("#tr").textContent=g;await speak(g);listen()}
+function listen(){if(!inCall)return;const r=rec=new SR();r.lang="en-IN";let got=0;
+ r.onresult=async e=>{got=1;const t=e.results[0][0].transcript;$("#tr").textContent="You: "+t;
+  const a=await ai(t);if(!inCall)return;$("#tr").textContent=a;await speak(a);
+  if(/confirm|claim|yes|avail/i.test(t)){endCall(1);return}listen()};
+ r.onerror=()=>{};r.onend=()=>{if(inCall&&!got)setTimeout(listen,400)};try{r.start()}catch(e){}}
+function stopCall(){inCall=0;clearInterval(tmr);rec&&rec.abort&&rec.abort();speechSynthesis&&speechSynthesis.cancel();$("#av").classList.remove("live")}
+function endCall(done){stopCall();go("chat");if(done&&S.offer){msg("Claimed by voice: "+S.offer.title,"u");coupon()}}
+$("#end").onclick=()=>endCall(0);
+reset();hyd();
+/* GSAP shape-morph logo */
+const N=72,TH=[...Array(N)].map((_,i)=>i/N*Math.PI*2),A=Math.abs,C=Math.cos,SN=Math.sin;
+const SH=[t=>4.5+6.5*A(C(6*t))**3,t=>7.5+3.5*C(6*t),()=>9,t=>9/(C(t)**4+SN(t)**4)**.25,t=>2.5+8.5*A(C(2*t))**3,t=>4.5+6.5*C(4*t)**2];
+let cur=TH.map(SH[0]);
+const draw=()=>{const d="M"+cur.map((r,i)=>(12+r*C(TH[i])).toFixed(2)+" "+(12+r*SN(TH[i])).toFixed(2)).join("L")+"Z";document.querySelectorAll(".sp").forEach(e=>e.setAttribute("d",d))};
+function morph(k){const f=cur.slice(),t=TH.map(SH[k%SH.length]),o={p:0};
+ gsap.to(o,{p:1,duration:1.3,delay:.8,ease:"power3.inOut",onUpdate(){cur=f.map((v,i)=>v+(t[i]-v)*o.p);draw()},onComplete:()=>morph(k+1)})}
+draw();
+if(window.gsap&&!matchMedia("(prefers-reduced-motion:reduce)").matches){morph(1);gsap.to(".star",{rotation:"+=360",duration:18,ease:"none",repeat:-1})}
+</script></body></html>

@@ -1,0 +1,187 @@
+[
+  {
+    "file": "slot_machine.png",
+    "width": 753,
+    "height": 1157
+  },
+  {
+    "file": "title_plate.png",
+    "width": 513,
+    "height": 151
+  },
+  {
+    "file": "gift_crown.png",
+    "width": 479,
+    "height": 332
+  },
+  {
+    "file": "screen_frame.png",
+    "width": 518,
+    "height": 293
+  },
+  {
+    "file": "lever.png",
+    "width": 106,
+    "height": 338
+  },
+  {
+    "file": "arrow_right.png",
+    "width": 100,
+    "height": 118
+  },
+  {
+    "file": "arrow_left.png",
+    "width": 100,
+    "height": 118
+  },
+  {
+    "file": "panel_bg.png",
+    "width": 511,
+    "height": 295
+  },
+  {
+    "file": "small_panel.png",
+    "width": 209,
+    "height": 115
+  },
+  {
+    "file": "button_circle_purple.png",
+    "width": 166,
+    "height": 164
+  },
+  {
+    "file": "button_circle_gold.png",
+    "width": 167,
+    "height": 164
+  },
+  {
+    "file": "button_primary.png",
+    "width": 334,
+    "height": 142
+  },
+  {
+    "file": "button_secondary.png",
+    "width": 288,
+    "height": 144
+  },
+  {
+    "file": "bar_black.png",
+    "width": 362,
+    "height": 73
+  },
+  {
+    "file": "button_gold.png",
+    "width": 333,
+    "height": 125
+  },
+  {
+    "file": "button_purple.png",
+    "width": 291,
+    "height": 123
+  },
+  {
+    "file": "bar_purple.png",
+    "width": 362,
+    "height": 69
+  },
+  {
+    "file": "bag_blue.png",
+    "width": 173,
+    "height": 166
+  },
+  {
+    "file": "bag_red.png",
+    "width": 164,
+    "height": 165
+  },
+  {
+    "file": "star.png",
+    "width": 169,
+    "height": 157
+  },
+  {
+    "file": "coin_gold.png",
+    "width": 161,
+    "height": 157
+  },
+  {
+    "file": "coin_silver.png",
+    "width": 158,
+    "height": 155
+  },
+  {
+    "file": "heart.png",
+    "width": 163,
+    "height": 144
+  },
+  {
+    "file": "gem_green.png",
+    "width": 177,
+    "height": 141
+  },
+  {
+    "file": "gem_purple.png",
+    "width": 171,
+    "height": 137
+  },
+  {
+    "file": "grapes.png",
+    "width": 168,
+    "height": 169
+  },
+  {
+    "file": "bell.png",
+    "width": 164,
+    "height": 159
+  },
+  {
+    "file": "lemon.png",
+    "width": 166,
+    "height": 158
+  },
+  {
+    "file": "cherry.png",
+    "width": 168,
+    "height": 163
+  },
+  {
+    "file": "orange.png",
+    "width": 149,
+    "height": 157
+  },
+  {
+    "file": "seven.png",
+    "width": 158,
+    "height": 160
+  },
+  {
+    "file": "clover.png",
+    "width": 156,
+    "height": 158
+  },
+  {
+    "file": "watermelon.png",
+    "width": 175,
+    "height": 155
+  },
+  {
+    "file": "reel_spin.png",
+    "width": 498,
+    "height": 351
+  },
+  {
+    "file": "reel_frame.png",
+    "width": 504,
+    "height": 352
+  },
+  {
+    "file": "burst_effect.png",
+    "width": 333,
+    "height": 316
+  },
+  {
+    "file": "coin_stack.png",
+    "width": 369,
+    "height": 233
+  }
+]

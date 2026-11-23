@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Dark Fantasy — Stadium WebAR Gratification</title>
+
+  <!-- Google Fonts: Cinzel for luxury chocolate branding, Plus Jakarta Sans for clean mobile UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- GSAP 3 for Smooth Intro & UI Transitions -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- MediaPipe FaceMesh & Camera Utils -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --choco-deep: #140703;
+      --choco-rich: #2b1008;
+      --choco-milk: #4d1f10;
+      --gold-bright: #ffd369;
+      --gold-rich: #d49b35;
+      --crimson-war: #d91c24;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0b0402;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #fff;
+    }
+
+    .font-brand {
+      font-family: 'Cinzel', serif;
+    }
+
+    /* Fullscreen experience with a centered 9:16 stage on wide screens. */
+    #app-wrapper {
+      width: 100%;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #090301;
+      position: relative;
+    }
+
+    #mobile-viewport {
+      position: relative;
+      width: min(100vw, 56.25dvh);
+      height: 100dvh;
+      aspect-ratio: 9 / 16;
+      max-width: min(100vw, 56.25dvh);
+      max-height: 100dvh;
+      background: var(--choco-deep);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (max-aspect-ratio: 9 / 16) {
+      #mobile-viewport {
+        width: 100vw;
+        height: 100dvh;
+        max-width: none;
+        max-height: none;
+      }
+    }
+
+    /* Desktop Guard Banner (Dismissible / Simulator toggle) */
+    #desktop-guard {
+      display: none;
+    }
+    @media (min-width: 768px) {
+      #desktop-guard {
+        display: flex;
+      }
+    }
+
+    /* Custom Scrollbar Hide */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Chocolate Splash Footer Wave */
+    .choco-wave-bg {
+      background: linear-gradient(180deg, rgba(43, 16, 8, 0) 0%, rgba(36, 12, 5, 0.92) 32%, #1d0803 100%);
+    }
+
+    /* Shutter Pulse Ring */
+    @keyframes ringPulse {
+      0% { transform: scale(1); opacity: 0.85; }
+      70% { transform: scale(1.16); opacity: 0; }
+      100% { transform: scale(1.16); opacity: 0; }
+    }
+    .shutter-pulse::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 9999px;
+      border: 2px solid var(--gold-bright);
+      animation: ringPulse 2s infinite ease-out;
+      pointer-events: none;
+    }
+
+    /* Floating Sparkle Particles */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(6deg); }
+    }
+    .animate-float {
+      animation: floatSlow 3.5s ease-in-out infinite;
+    }
+
+    /* Flash Overlay */
+    #camera-flash {
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.12s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-wrapper">
+    <!-- Desktop Notice / Mobile Simulator Controls -->
+    <div id="desktop-guard" class="fixed top-4 left-4 z-50 flex-col gap-2 max-w-xs bg-[#1e0b05]/90 backdrop-blur-md border border-[#d49b35]/30 p-3.5 rounded-2xl shadow-2xl">
+      <div class="flex items-center gap-2 text-[#ffd369] text-xs font-bold uppercase tracking-wider">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Mobile WebAR Simulator
+      </div>
+        <p class="text-[11px] text-amber-100/80 leading-relaxed">
+        Designed for a 9:16 mobile viewport. Scan on your smartphone or preview the centered stage here.
+      </p>
+    </div>
+
+    <!-- Main 9:16 Mobile Container -->
+    <main id="mobile-viewport">
+      <!-- ==================== STAGE 1: GSAP BRANDED INTRO LOADER ==================== -->
+      <section id="stage-intro" class="absolute inset-0 z-40 flex flex-col items-center justify-between px-6 py-10 bg-gradient-to-b from-[#2b0f06] via-[#190703] to-[#0e0301] overflow-hidden">
+        <!-- Ambient Cinematic Stadium AR Background Video -->
+        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-[#140703]">
+          <video
+            id="intro-video"
+            class="w-full h-full object-cover opacity-100"
+            autoplay
+            loop
+            muted
+            playsinline
+            preload="auto"
+            poster="assets/img/hero-banner-001.png"
+          >
+            <source src="assets/img/ar_gratification_.mp4" type="video/mp4" />
+          </video>
+          <!-- Light contrast overlay keeps the video visible behind the logo. -->
+          <div class="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/50"></div>
+        </div>
+
+        <!-- Decorative Radial Glow -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#d49b35]/10 blur-3xl pointer-events-none"></div>
+
+        <!-- Floating Molten Drops SVG -->
+        <svg class="absolute top-0 left-0 w-full h-36 opacity-80 pointer-events-none" viewBox="0 0 400 140" fill="none" preserveAspectRatio="none">
+          <path d="M0 0H400V58C375 58 368 96 346 96C324 96 318 46 290 46C262 46 254 114 226 114C198 114 192 54 162 54C132 54 122 92 96 92C70 92 62 48 34 48C14 48 8 66 0 66V0Z" fill="url(#chocoTopGrad)" />
+          <defs>
+            <linearGradient id="chocoTopGrad" x1="200" y1="0" x2="200" y2="114" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#4e1f0e" />
+              <stop offset="1" stop-color="#240b04" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <!-- Center Brand Crest & Circular Progress Ring -->
+        <div class="relative z-10 flex flex-col items-center text-center my-auto">
+          <div id="intro-brand" class="intro-stagger relative w-52 h-52 flex items-center justify-center mb-6">
+            <!-- SVG Progress Ring -->
+            <!-- Centered Dark Fantasy Logo -->
+        <div class="absolute inset-4 flex items-center justify-center p-3">
+              <img id="intro-logo" src="assets/img/ar_gratification_logo.webp" alt="Sunfeast Dark Fantasy" class="w-full h-full object-contain drop-shadow-[0_0_24px_rgba(255,211,105,0.65)]" />
+            </div>
+          </div>
+
+          <h2 class="intro-stagger font-brand text-xl font-bold text-[#ffd369] tracking-wide mb-2">
+            A Lot Can Happen Inside!
+          </h2>
+          <p class="intro-stagger text-xs text-amber-100/75 max-w-[270px] leading-relaxed">
+            Try on 5 live stadium AR face filters, snap your fan look, and unlock instant gratification rewards.
+          </p>
+        </div>
+
+        <!-- Bottom Action Area -->
+        <div class="intro-stagger relative z-10 w-full flex flex-col items-center gap-3">
+          <p id="camera-error" class="hidden text-center text-xs text-rose-200" role="alert"></p>
+          <button id="btn-start-ar" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#f7c85c] via-[#e2a336] to-[#c9841e] text-[#1f0903] font-extrabold text-sm tracking-wide uppercase shadow-[0_10px_28px_rgba(226,163,54,0.4)] active:scale-95 transition-transform flex items-center justify-center gap-2 opacity-60 pointer-events-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <circle cx="12" cy="13" r="3" />
+            </svg>
+            <span id="btn-start-label">Initializing AR Lenses...</span>
+          </button>
+          <span class="text-[10px] text-amber-200/50">Camera access used locally on-device for AR tracking</span>
+        </div>
+      </section>
+
+      <!-- ==================== STAGE 2: SNAPCHAT-STYLE WEBAR CAMERA ==================== -->
+      <section id="stage-camera" class="relative w-full h-full flex flex-col justify-between bg-black overflow-hidden">
+        <!-- Hidden Video Source for MediaPipe -->
+        <video id="webcam-video" class="hidden" playsinline autoplay muted></video>
+
+        <!-- Main Real-Time AR Output Canvas -->
+        <canvas id="ar-canvas" class="absolute inset-0 w-full h-full object-cover"></canvas>
+
+        <!-- Camera Flash Effect -->
+        <div id="camera-flash" class="absolute inset-0 bg-white z-30"></div>
+
+        <!-- Demo / Fallback Mode Pill (Shown if webcam blocked or toggled) -->
+        <!-- TOP SNAPCHAT-STYLE HUD -->
+        <header class="relative z-20 flex items-center justify-between px-4 pt-5 pb-3 bg-gradient-to-b from-black/70 via-black/30 to-transparent">
+          <!-- Left: Back + Brand Medallion -->
+          <div class="flex items-center gap-2">
+            <button id="btn-back-intro" aria-label="Back" class="w-10 h-10 rounded-full bg-[#240c05]/85 backdrop-blur-md border border-[#d49b35]/40 flex items-center justify-center text-amber-100 active:scale-90 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div class="px-3 py-1.5 rounded-full bg-[#240c05]/85 backdrop-blur-md border border-[#d49b35]/40 flex items-center gap-1.5 shadow-lg">
+              <span class="w-2 h-2 rounded-full bg-[#ffd369]"></span>
+              <div class="leading-none">
+                <span class="block text-[8px] uppercase tracking-widest text-amber-200/75">Sunfeast</span>
+                <span class="font-brand text-xs font-bold text-[#ffd369]">Dark Fantasy</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center Controls: Audio & Flash -->
+          <div class="flex items-center gap-2">
+            <button id="btn-toggle-sound" aria-label="Toggle Stadium Sound" class="w-9 h-9 rounded-full bg-black/45 backdrop-blur-md border border-white/15 flex items-center justify-center text-white active:scale-90 transition">
+              <svg id="icon-sound-on" class="w-4 h-4 text-[#ffd369]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14" />
+              </svg>
+              <svg id="icon-sound-off" class="w-4 h-4 text-white/70 hidden" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6" />
+              </svg>
+            </button>
+            <button id="btn-toggle-flash" aria-label="Toggle Flash" class="w-9 h-9 rounded-full bg-black/45 backdrop-blur-md border border-white/15 flex items-center justify-center text-white active:scale-90 transition">
+              <svg id="icon-flash" class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Right: Flip Camera -->
+          <button id="btn-flip-cam" aria-label="Switch Camera" class="w-10 h-10 rounded-full bg-black/45 backdrop-blur-md border border-white/15 flex items-center justify-center text-white active:scale-90 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </header>
+
+        <!-- BOTTOM SNAPCHAT LENS CAROUSEL & CHOCOLATE SPLASH FOOTER -->
+        <footer class="relative z-20 pt-2 pb-5 px-3 choco-wave-bg">
+          <!-- Molten Chocolate Splash SVG Accent -->
+          <svg class="absolute bottom-0 left-0 w-full h-28 pointer-events-none opacity-95" viewBox="0 0 400 110" fill="none" preserveAspectRatio="none">
+            <path d="M0 32C28 10 46 48 76 44C106 40 118 14 148 24C178 34 192 52 222 44C252 36 270 12 302 22C334 32 358 46 400 18V110H0V32Z" fill="url(#chocoSplashBottom)" />
+            <defs>
+              <linearGradient id="chocoSplashBottom" x1="200" y1="10" x2="200" y2="110" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#5c2511" />
+                <stop offset="0.45" stop-color="#331106" />
+                <stop offset="1" stop-color="#170602" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          <!-- 5-Lens Carousel Strip -->
+          <div class="relative z-10 flex items-center justify-between gap-1.5 mb-3">
+            <!-- Left Home / Reset Button -->
+            <button id="btn-reset-filter" aria-label="Reset to Hero Filter" class="w-11 h-11 shrink-0 rounded-full bg-white text-[#d91c24] shadow-lg flex items-center justify-center active:scale-90 transition">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3l9-8z" />
+              </svg>
+            </button>
+
+            <!-- Scrollable / Tappable 5 Filter Lenses -->
+            <div id="filter-carousel" class="flex-1 flex items-center justify-center gap-2 overflow-x-auto no-scrollbar py-1">
+              <!-- Populated by JS with 5 Auto-Detect Filter Lenses -->
+            </div>
+
+          </div>
+
+          <!-- Tap Shutter Instruction + Brand Tagline -->
+          <div class="relative z-10 text-center">
+            <p class="text-[10px] uppercase tracking-[0.16em] text-amber-200/80 font-semibold mb-0.5">
+              Tap Active Center Lens to Snap & Win
+            </p>
+            <h3 class="font-brand text-base font-extrabold text-[#ffd369] drop-shadow">
+              A Lot Can Happen Inside!
+            </h3>
+            <p class="text-[11px] font-semibold text-amber-100/85">@SunfeastDarkFantasy</p>
+          </div>
+        </footer>
+      </section>
+
+      <!-- ==================== STAGE 3 & 4: POST-CAPTURE GRATIFICATION & SAVE IMAGE ==================== -->
+      <section id="stage-gratification" class="hidden absolute inset-0 z-30 flex flex-col bg-[#140602]">
+        <!-- Top Bar -->
+        <div class="flex items-center justify-between px-4 pt-4 pb-2 bg-[#1c0904] border-b border-[#d49b35]/20">
+          <button id="btn-retake" class="px-3 py-1.5 rounded-full bg-white/10 text-xs font-semibold text-amber-100 flex items-center gap-1.5 active:scale-95 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Retake
+          </button>
+          <span class="font-brand text-xs font-bold text-[#ffd369] tracking-wider uppercase">Fan Snapshot Ready</span>
+          <div class="w-16"></div>
+        </div>
+
+        <!-- Captured Composite Image Preview -->
+        <div class="relative flex-1 flex items-center justify-center p-3 overflow-hidden bg-gradient-to-b from-[#1a0803] to-[#0e0301]">
+          <div class="relative h-full aspect-[9/16] max-h-full rounded-2xl overflow-hidden border-2 border-[#d49b35]/50 shadow-[0_12px_40px_rgba(0,0,0,0.8)]">
+            <img id="captured-preview-img" alt="Captured Dark Fantasy AR Look" class="w-full h-full object-cover" />
+            <!-- Unlocked Reward Ribbon Overlay (Shown after form submit) -->
+            <div id="unlocked-ribbon" class="hidden absolute top-3 left-3 right-3 px-3 py-2 rounded-xl bg-[#240b04]/95 border border-[#ffd369] shadow-xl flex items-center justify-between">
+              <div>
+                <span class="block text-[9px] uppercase tracking-widest text-amber-300">Verified Fan Entry</span>
+                <span id="ribbon-user-name" class="text-xs font-extrabold text-white">Champion Fan</span>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg bg-[#ffd369] text-[#240b04] font-extrabold text-[11px] tracking-wider">
+                DFWIN2026
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Sheet: Lead Capture Form OR Instant Reward + Save Image -->
+        <div id="gratification-sheet" class="relative bg-gradient-to-b from-[#2b1007] to-[#170703] border-t border-[#d49b35]/40 rounded-t-3xl px-5 pt-4 pb-6 shadow-[0_-15px_40px_rgba(0,0,0,0.75)]">
+          <!-- STEP A: Gratification Lead Form -->
+          <form id="gratification-form" class="space-y-3" novalidate>
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded-full bg-[#ffd369]/15 text-[#ffd369] text-[10px] font-bold uppercase tracking-wider mb-1">
+                  Instant Gratification
+                </span>
+                <h3 class="font-brand text-base font-bold text-white leading-snug">
+                  Claim Your Reward & Unlock HD Photo
+                </h3>
+              </div>
+              <span class="text-2xl">🏆</span>
+            </div>
+
+            <div class="grid grid-cols-1 gap-2.5">
+              <div>
+                <input id="input-name" type="text" required placeholder="Your Full Name *" class="w-full px-3.5 py-2.5 rounded-xl bg-[#140602]/90 border border-[#d49b35]/35 text-xs text-white placeholder-amber-200/40 focus:outline-none focus:border-[#ffd369]" />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input id="input-phone" type="tel" maxlength="10" required placeholder="10-Digit Mobile *" class="w-full px-3.5 py-2.5 rounded-xl bg-[#140602]/90 border border-[#d49b35]/35 text-xs text-white placeholder-amber-200/40 focus:outline-none focus:border-[#ffd369]" />
+                <input id="input-city" type="text" placeholder="City / Pack Code" class="w-full px-3.5 py-2.5 rounded-xl bg-[#140602]/90 border border-[#d49b35]/35 text-xs text-white placeholder-amber-200/40 focus:outline-none focus:border-[#ffd369]" />
+              </div>
+            </div>
+
+            <p id="form-error-msg" class="hidden text-[11px] text-rose-400 font-medium"></p>
+
+            <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#ffd369] via-[#e2a336] to-[#c9841e] text-[#1f0903] font-extrabold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition">
+              Unlock Reward & Proceed to Save
+            </button>
+          </form>
+
+          <!-- STEP B: Reward Unlocked & One-Click Save Image -->
+          <div id="reward-unlocked-panel" class="hidden space-y-3">
+            <div class="p-3 rounded-2xl bg-[#160602] border border-[#ffd369]/45 flex items-center justify-between gap-3">
+              <div>
+                <span class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold block">Congratulations!</span>
+                <p class="text-xs font-bold text-white mt-0.5">Assured ₹50 Cashback + Stadium Pass Entry</p>
+                <p class="text-[11px] text-amber-200/75 mt-0.5">Voucher Code: <strong class="text-[#ffd369] select-all">DFWIN2026</strong></p>
+              </div>
+              <button id="btn-copy-code" type="button" class="px-3 py-2 rounded-xl bg-[#ffd369]/20 border border-[#ffd369]/50 text-[#ffd369] text-[11px] font-bold active:scale-95 transition">
+                Copy
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <button id="btn-save-image" type="button" class="col-span-2 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#ffd369] via-[#e2a336] to-[#c9841e] text-[#1f0903] font-extrabold text-xs uppercase tracking-wider shadow-[0_8px_24px_rgba(226,163,54,0.35)] flex items-center justify-center gap-2 active:scale-95 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Save Image to Gallery
+              </button>
+              <button id="btn-share-image" type="button" class="py-2.5 px-3 rounded-xl bg-white/10 border border-white/15 text-white font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
+                <svg class="w-4 h-4 text-[#ffd369]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                Share Look
+              </button>
+              <button id="btn-try-another" type="button" class="py-2.5 px-3 rounded-xl bg-white/10 border border-white/15 text-amber-200 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
+                Try Another Filter
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Non-intrusive Toast Notification -->
+      <div id="toast-msg" class="pointer-events-none opacity-0 fixed bottom-28 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-[#240b04]/95 border border-[#ffd369] text-xs font-bold text-[#ffd369] shadow-2xl transition-opacity duration-200 whitespace-nowrap">
+        Saved to your device!
+      </div>
+    </main>
+  </div>
+
+  <script>
+    /**
+     * Sunfeast Dark Fantasy — Mobile WebAR Gratification Campaign
+     * Architecture:
+     * 1. GSAP Intro Loader with radial progress + staggered reveals.
+     * 2. MediaPipe FaceMesh tracking on the live camera feed.
+     * 3. 5 Auto-Detect AR Filters rendered at 60fps onto an HTML5 Canvas + Snapchat lens carousel.
+     * 4. Post-capture gratification lead form + high-res branded PNG composite download & Web Share.
+     */
+
+    // ==================== FILTER DEFINITIONS ====================
+    const FILTERS = [
+      {
+        id: 'war-paint',
+        name: 'Cricket War Paint',
+        short: 'War Paint',
+        accent: '#d91c24',
+        iconSVG: `<svg viewBox="0 0 40 40" class="w-7 h-7"><circle cx="20" cy="20" r="16" fill="#f3c69f"/><path d="M11 13v13M14 12v15M26 12v15M29 13v13" stroke="#d91c24" stroke-width="2.4" stroke-linecap="round"/><path d="M12.5 14v11M27.5 14v11" stroke="#ffd369" stroke-width="1.6" stroke-linecap="round"/></svg>`
+      },
+      {
+        id: 'choco-crown',
+        name: 'Choco Gold Crown',
+        short: 'Crown',
+        accent: '#ffd369',
+        iconSVG: `<svg viewBox="0 0 40 40" class="w-7 h-7"><path d="M8 27L6 14l8 6 6-9 6 9 8-6-2 13H8z" fill="#ffd369" stroke="#5c2511" stroke-width="1.8"/><rect x="8" y="27" width="24" height="4" rx="2" fill="#4e1f0e"/></svg>`
+      },
+      {
+        id: 'superfan-cap',
+        name: 'Stadium Superfan',
+        short: 'Superfan',
+        accent: '#ff6b2b',
+        iconSVG: `<svg viewBox="0 0 40 40" class="w-7 h-7"><path d="M10 21a10 10 0 0120 0v3H10v-3z" fill="#d91c24"/><path d="M12 24h20l-2 4H12v-4z" fill="#ffd369"/><circle cx="20" cy="17" r="3" fill="#ffd369"/></svg>`
+      },
+      {
+        id: 'fantasy-shades',
+        name: 'Dark Fantasy Shades',
+        short: 'Shades',
+        accent: '#c9841e',
+        iconSVG: `<svg viewBox="0 0 40 40" class="w-7 h-7"><rect x="6" y="15" width="12" height="8" rx="3" fill="#240b04" stroke="#ffd369" stroke-width="2"/><rect x="22" y="15" width="12" height="8" rx="3" fill="#240b04" stroke="#ffd369" stroke-width="2"/><path d="M18 18h4" stroke="#ffd369" stroke-width="2"/></svg>`
+      },
+      {
+        id: 'trophy-aura',
+        name: 'Champion Trophy Aura',
+        short: 'Trophy',
+        accent: '#ffe28a',
+        iconSVG: `<svg viewBox="0 0 40 40" class="w-7 h-7"><path d="M13 10h14v7a7 7 0 01-14 0v-7z" fill="#ffd369"/><path d="M13 12H9a3 3 0 003 5M27 12h4a3 3 0 01-3 5" stroke="#ffd369" stroke-width="2" fill="none"/><path d="M17 24h6v4h-6zM14 28h12v3H14z" fill="#d49b35"/></svg>`
+      }
+    ];
+
+    // ==================== APPLICATION STATE ====================
+    const state = {
+      activeFilterIndex: 0,
+      landmarks: null,
+      facingMode: 'user',
+      soundOn: true,
+      flashOn: false,
+      showSparkles: true,
+      showStadiumBg: false,
+      capturedDataUrl: null,
+      userName: '',
+      particles: [],
+      audioCtx: null
+    };
+
+    // Initialize floating gold/confetti particles
+    for (let i = 0; i < 28; i++) {
+      state.particles.push({
+        x: Math.random(),
+        y: Math.random(),
+        r: 2 + Math.random() * 4,
+        speedY: 0.0015 + Math.random() * 0.003,
+        drift: (Math.random() - 0.5) * 0.002,
+        color: i % 3 === 0 ? '#ffd369' : i % 3 === 1 ? '#d91c24' : '#ffffff',
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+
+    // ==================== DOM REFERENCES ====================
+    const stageIntro = document.getElementById('stage-intro');
+    const stageCamera = document.getElementById('stage-camera');
+    const stageGratification = document.getElementById('stage-gratification');
+    const btnStartAr = document.getElementById('btn-start-ar');
+    const btnStartLabel = document.getElementById('btn-start-label');
+    const videoEl = document.getElementById('webcam-video');
+    const canvasEl = document.getElementById('ar-canvas');
+    const ctx = canvasEl.getContext('2d');
+    const filterCarousel = document.getElementById('filter-carousel');
+
+    // ==================== STAGE 1: GSAP INTRO ANIMATION ====================
+    function runIntroLoader() {
+      gsap.fromTo('#intro-logo',
+        { scale: 0.68, rotation: -12, opacity: 0, filter: 'drop-shadow(0 0 0 rgba(255,211,105,0))' },
+        { scale: 1, rotation: 0, opacity: 1, filter: 'drop-shadow(0 0 24px rgba(255,211,105,0.65))', duration: 1.15, ease: 'back.out(1.8)', delay: 0.15 }
+      );
+      gsap.to('#intro-brand', { y: -5, duration: 1.8, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.3 });
+
+      gsap.from('.intro-stagger', {
+        y: 22,
+        opacity: 0,
+        duration: 0.75,
+        stagger: 0.12,
+        ease: 'power3.out'
+      });
+
+      btnStartLabel.textContent = 'Launch AR Camera';
+      btnStartAr.classList.remove('opacity-60', 'pointer-events-none');
+      gsap.fromTo(btnStartAr, { scale: 0.96 }, { scale: 1, duration: 0.4, ease: 'back.out(1.7)' });
+    }
+
+    // ==================== WEB AUDIO STADIUM CHEER / SHUTTER SFX ====================
+    function playToneSfx(type = 'shutter') {
+      if (!state.soundOn) return;
+      try {
+        if (!state.audioCtx) {
+          state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        const ac = state.audioCtx;
+        if (ac.state === 'suspended') ac.resume();
+
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.connect(gain);
+        gain.connect(ac.destination);
+
+        const now = ac.currentTime;
+        if (type === 'shutter') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(220, now + 0.12);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+          osc.start(now);
+          osc.stop(now + 0.14);
+        } else if (type === 'lens') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(760, now + 0.08);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } else if (type === 'win') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.1);
+          osc.frequency.setValueAtTime(783.99, now + 0.2);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+          osc.start(now);
+          osc.stop(now + 0.46);
+        }
+      } catch (e) {
+        // Ignore audio context autoplay restrictions
+      }
+    }
+
+    // ==================== BUILD SNAPCHAT 5-FILTER LENS CAROUSEL ====================
+    function renderLensCarousel() {
+      filterCarousel.innerHTML = '';
+      FILTERS.forEach((filter, idx) => {
+        const isActive = idx === state.activeFilterIndex;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('aria-label', filter.name);
+        btn.className = isActive
+          ? 'shutter-pulse relative w-16 h-16 shrink-0 rounded-full bg-gradient-to-b from-[#3d170a] to-[#1a0702] border-[3.5px] border-white shadow-[0_0_20px_rgba(255,211,105,0.65)] flex flex-col items-center justify-center transition-all duration-200 scale-105'
+          : 'relative w-11 h-11 shrink-0 rounded-full bg-black/55 backdrop-blur-md border-2 border-white/40 flex items-center justify-center opacity-85 hover:opacity-100 active:scale-90 transition-all duration-200';
+
+        btn.innerHTML = isActive
+          ? `${filter.iconSVG}<span class="text-[7px] font-extrabold uppercase tracking-wider text-[#ffd369] mt-0.5">SNAP</span>`
+          : filter.iconSVG;
+
+        btn.addEventListener('click', () => {
+          if (state.activeFilterIndex === idx) {
+            // Tapping active center lens captures snapshot!
+            captureArSnapshot();
+          } else {
+            state.activeFilterIndex = idx;
+            playToneSfx('lens');
+            renderLensCarousel();
+          }
+        });
+
+        filterCarousel.appendChild(btn);
+      });
+    }
+
+    // ==================== MEDIAPIPE FACEMESH & CAMERA INITIALIZATION ====================
+    let faceMeshInstance = null;
+    let cameraStream = null;
+    let animationFrameId = null;
+
+    async function initWebAR() {
+      resizeCanvas();
+
+      // Setup MediaPipe FaceMesh if loaded
+      if (typeof FaceMesh !== 'undefined') {
+        try {
+          faceMeshInstance = new FaceMesh({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+          });
+          faceMeshInstance.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+          });
+          faceMeshInstance.onResults((results) => {
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+              state.landmarks = results.multiFaceLandmarks[0];
+            } else {
+              state.landmarks = null;
+            }
+          });
+        } catch (err) {
+          console.warn('MediaPipe FaceMesh init warning:', err);
+        }
+      }
+
+      const started = await startWebcamStream();
+      if (!started) return false;
+      startRenderLoop();
+      return true;
+    }
+
+    async function startWebcamStream() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((t) => t.stop());
+      }
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Camera API unavailable');
+        }
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: state.facingMode,
+            width: { ideal: 720 },
+            height: { ideal: 1280 }
+          },
+          audio: false
+        });
+        videoEl.srcObject = cameraStream;
+        await videoEl.play();
+        state.landmarks = null;
+        document.getElementById('camera-error').classList.add('hidden');
+        return true;
+      } catch (err) {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((track) => track.stop());
+          cameraStream = null;
+        }
+        videoEl.srcObject = null;
+        const message = err.name === 'NotAllowedError'
+          ? 'Allow camera access in your browser to start the AR experience.'
+          : 'Could not start the camera. Check that it is available and try again.';
+        document.getElementById('camera-error').textContent = message;
+        document.getElementById('camera-error').classList.remove('hidden');
+        return false;
+      }
+    }
+
+    function resizeCanvas() {
+      const rect = canvasEl.parentElement.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvasEl.width = rect.width * dpr;
+      canvasEl.height = rect.height * dpr;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // ==================== 60FPS CANVAS AR RENDERING ENGINE ====================
+    let lastMeshTimestamp = 0;
+
+    function startRenderLoop() {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+      const renderFrame = async (timestamp) => {
+        const w = canvasEl.width;
+        const h = canvasEl.height;
+        ctx.clearRect(0, 0, w, h);
+
+        // Draw camera and AR effects in the same source orientation, then mirror the
+        // composed selfie frame once so the video and effects cannot drift apart.
+        if (videoEl.readyState >= 2) {
+          // Send frame to MediaPipe FaceMesh (~30fps throttle for smooth UI)
+          if (faceMeshInstance && timestamp - lastMeshTimestamp > 32) {
+            lastMeshTimestamp = timestamp;
+            try {
+              await faceMeshInstance.send({ image: videoEl });
+            } catch (e) {}
+          }
+
+          drawCoverVideo(ctx, videoEl, w, h, false);
+        }
+
+        // Apply the selected face effect only when real face tracking finds a face.
+        if (state.landmarks) {
+          const pts = mapLandmarksToCanvas(state.landmarks, w, h);
+          const currentFilter = FILTERS[state.activeFilterIndex];
+
+          switch (currentFilter.id) {
+            case 'war-paint':
+              drawFilterWarPaint(ctx, pts, w, h);
+              break;
+            case 'choco-crown':
+              drawFilterChocoCrown(ctx, pts, w, h, timestamp);
+              break;
+            case 'superfan-cap':
+              drawFilterSuperfanCap(ctx, pts, w, h);
+              break;
+            case 'fantasy-shades':
+              drawFilterFantasyShades(ctx, pts, w, h);
+              break;
+            case 'trophy-aura':
+              drawFilterTrophyAura(ctx, pts, w, h, timestamp);
+              break;
+          }
+        }
+
+        // Draw Floating Gold/Stadium Sparkles
+        if (state.showSparkles) {
+          drawFloatingParticles(ctx, w, h);
+        }
+
+        if (state.facingMode === 'user') {
+          ctx.save();
+          ctx.globalCompositeOperation = 'copy';
+          ctx.translate(w, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(canvasEl, 0, 0, w, h);
+          ctx.restore();
+        }
+
+        animationFrameId = requestAnimationFrame(renderFrame);
+      };
+
+      animationFrameId = requestAnimationFrame(renderFrame);
+    }
+
+    // Draw webcam video with aspect-fill cropping
+    function getVideoCover(video, cw, ch) {
+      const vw = video.videoWidth || 720;
+      const vh = video.videoHeight || 1280;
+      const scale = Math.max(cw / vw, ch / vh);
+      const sw = cw / scale;
+      const sh = ch / scale;
+      return { sx: (vw - sw) / 2, sy: (vh - sh) / 2, sw, sh, vw, vh };
+    }
+
+    function drawCoverVideo(ctx, video, cw, ch, mirror) {
+      const crop = getVideoCover(video, cw, ch);
+      ctx.save();
+      if (mirror) {
+        ctx.translate(cw, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, cw, ch);
+      ctx.restore();
+    }
+
+    // Map normalized MediaPipe landmarks to canvas coordinates
+    function mapLandmarksToCanvas(lm, w, h) {
+      const crop = getVideoCover(videoEl, w, h);
+      const getPt = (idx) => {
+        const p = lm[idx] || { x: 0.5, y: 0.5 };
+        const x = ((p.x * crop.vw - crop.sx) / crop.sw) * w;
+        const y = ((p.y * crop.vh - crop.sy) / crop.sh) * h;
+        return {
+          x,
+          y
+        };
+      };
+
+      const forehead = getPt(10);
+      const chin = getPt(152);
+      const leftCheek = getPt(234);
+      const rightCheek = getPt(454);
+      const leftEyeOuter = getPt(33);
+      const leftEyeInner = getPt(133);
+      const rightEyeInner = getPt(362);
+      const rightEyeOuter = getPt(263);
+      const nose = getPt(1);
+
+      const leftEye = {
+        x: (leftEyeOuter.x + leftEyeInner.x) / 2,
+        y: (leftEyeOuter.y + leftEyeInner.y) / 2
+      };
+      const rightEye = {
+        x: (rightEyeOuter.x + rightEyeInner.x) / 2,
+        y: (rightEyeOuter.y + rightEyeInner.y) / 2
+      };
+
+      const faceWidth = Math.hypot(rightCheek.x - leftCheek.x, rightCheek.y - leftCheek.y);
+      const faceHeight = Math.hypot(chin.x - forehead.x, chin.y - forehead.y);
+      const angle = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x);
+
+      return {
+        forehead,
+        chin,
+        leftCheek,
+        rightCheek,
+        leftEye,
+        rightEye,
+        nose,
+        faceWidth,
+        faceHeight,
+        angle
+      };
+    }
+
+    // ==================== 5 AUTO-DETECT AR FACE FILTERS ====================
+
+    // FILTER 1: Cricket War Paint (Hero Filter matching reference image: red & gold vertical brush streaks)
+    function drawFilterWarPaint(ctx, pts) {
+      const { leftEye, rightEye, faceWidth, faceHeight, angle } = pts;
+
+      const drawCheekBrush = (eyePt, sideSign) => {
+        ctx.save();
+        ctx.translate(eyePt.x, eyePt.y);
+        ctx.rotate(angle);
+        ctx.globalCompositeOperation = 'multiply';
+
+        const stripeW = faceWidth * 0.055;
+        const topOffset = -faceHeight * 0.16;
+        const bottomOffset = faceHeight * 0.28;
+
+        // 3 Jagged painterly vertical stripes (Red - Gold - Red)
+        const stripes = [
+          { dx: -stripeW * 1.15, color: 'rgba(218, 22, 30, 0.86)', lenMod: 0.92 },
+          { dx: 0, color: 'rgba(246, 206, 94, 0.88)', lenMod: 1.0 },
+          { dx: stripeW * 1.15, color: 'rgba(218, 22, 30, 0.86)', lenMod: 0.95 }
+        ];
+
+        stripes.forEach((s) => {
+          ctx.fillStyle = s.color;
+          ctx.beginPath();
+          const x0 = s.dx - stripeW * 0.52;
+          const x1 = s.dx + stripeW * 0.52;
+          const y0 = topOffset * s.lenMod;
+          const y1 = bottomOffset * s.lenMod;
+
+          // Painterly brush bristle top & bottom
+          ctx.moveTo(x0, y0 + 8);
+          ctx.lineTo(x0 + stripeW * 0.25, y0);
+          ctx.lineTo(x0 + stripeW * 0.55, y0 + 10);
+          ctx.lineTo(x1, y0 + 3);
+          ctx.lineTo(x1 + sideSign * 3, y1 - 8);
+          ctx.lineTo(x0 + stripeW * 0.65, y1);
+          ctx.lineTo(x0 + stripeW * 0.3, y1 - 10);
+          ctx.lineTo(x0, y1 - 2);
+          ctx.closePath();
+          ctx.fill();
+        });
+
+        ctx.restore();
+      };
+
+      drawCheekBrush(leftEye, -1);
+      drawCheekBrush(rightEye, 1);
+    }
+
+    // FILTER 2: Choco Crown & Gold Glow
+    function drawFilterChocoCrown(ctx, pts, w, h, timestamp) {
+      const { forehead, leftEye, rightEye, faceWidth, angle } = pts;
+      const crownW = faceWidth * 0.85;
+      const crownH = crownW * 0.45;
+
+      ctx.save();
+      ctx.translate(forehead.x, forehead.y - crownH * 0.35);
+      ctx.rotate(angle);
+
+      // Crown Base Shadow
+      ctx.shadowColor = 'rgba(255, 211, 105, 0.7)';
+      ctx.shadowBlur = 18;
+
+      const grad = ctx.createLinearGradient(-crownW / 2, -crownH, crownW / 2, 0);
+      grad.addColorStop(0, '#c9841e');
+      grad.addColorStop(0.5, '#ffe699');
+      grad.addColorStop(1, '#c9841e');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(-crownW * 0.48, 0);
+      ctx.lineTo(-crownW * 0.55, -crownH * 0.85);
+      ctx.lineTo(-crownW * 0.24, -crownH * 0.42);
+      ctx.lineTo(0, -crownH * 1.05);
+      ctx.lineTo(crownW * 0.24, -crownH * 0.42);
+      ctx.lineTo(crownW * 0.55, -crownH * 0.85);
+      ctx.lineTo(crownW * 0.48, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // Chocolate Jewel Band
+      ctx.fillStyle = '#3b1509';
+      ctx.fillRect(-crownW * 0.48, -crownH * 0.16, crownW * 0.96, crownH * 0.18);
+
+      // Center Ruby Gem
+      ctx.fillStyle = '#d91c24';
+      ctx.beginPath();
+      ctx.arc(0, -crownH * 0.32, crownW * 0.055, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Golden Cheek Highlight Shimmer
+      const pulse = 0.65 + 0.25 * Math.sin(timestamp * 0.005);
+      [leftEye, rightEye].forEach((eye) => {
+        ctx.save();
+        const g = ctx.createRadialGradient(eye.x, eye.y + faceWidth * 0.16, 2, eye.x, eye.y + faceWidth * 0.16, faceWidth * 0.18);
+        g.addColorStop(0, `rgba(255, 211, 105, ${pulse * 0.55})`);
+        g.addColorStop(1, 'rgba(255, 211, 105, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(eye.x, eye.y + faceWidth * 0.16, faceWidth * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    // FILTER 3: Stadium Superfan Cap & Cheek Badges
+    function drawFilterSuperfanCap(ctx, pts) {
+      const { forehead, leftEye, rightEye, faceWidth, angle } = pts;
+      const capW = faceWidth * 1.05;
+      const capH = capW * 0.52;
+
+      ctx.save();
+      ctx.translate(forehead.x, forehead.y - capH * 0.15);
+      ctx.rotate(angle);
+
+      // Cap Dome
+      const domeGrad = ctx.createLinearGradient(0, -capH, 0, 0);
+      domeGrad.addColorStop(0, '#d91c24');
+      domeGrad.addColorStop(1, '#7f0d12');
+      ctx.fillStyle = domeGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, capW * 0.48, Math.PI, 0);
+      ctx.fill();
+
+      // Gold Center Stripe & DF Crest
+      ctx.fillStyle = '#ffd369';
+      ctx.fillRect(-capW * 0.06, -capH * 0.92, capW * 0.12, capH * 0.85);
+
+      // Visor Brim
+      ctx.fillStyle = '#240b04';
+      ctx.beginPath();
+      ctx.ellipse(0, 2, capW * 0.54, capH * 0.18, 0, 0, Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#ffd369';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.restore();
+
+      // Cheek Fan Badges ("DF #1")
+      [leftEye, rightEye].forEach((eye, i) => {
+        ctx.save();
+        ctx.translate(eye.x + (i === 0 ? -faceWidth * 0.06 : faceWidth * 0.06), eye.y + faceWidth * 0.18);
+        ctx.rotate(angle);
+        ctx.fillStyle = '#d91c24';
+        ctx.beginPath();
+        ctx.roundRect(-faceWidth * 0.11, -faceWidth * 0.045, faceWidth * 0.22, faceWidth * 0.09, 8);
+        ctx.fill();
+        ctx.strokeStyle = '#ffd369';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffd369';
+        ctx.font = `800 ${Math.max(10, Math.round(faceWidth * 0.055))}px "Plus Jakarta Sans", sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('DF #1', 0, 1);
+        ctx.restore();
+      });
+    }
+
+    // FILTER 4: Dark Fantasy Aviator Shades
+    function drawFilterFantasyShades(ctx, pts) {
+      const { leftEye, rightEye, faceWidth, angle } = pts;
+      const midX = (leftEye.x + rightEye.x) / 2;
+      const midY = (leftEye.y + rightEye.y) / 2;
+      const eyeDist = Math.hypot(rightEye.x - leftEye.x, rightEye.y - leftEye.y);
+      const lensW = eyeDist * 0.88;
+      const lensH = lensW * 0.64;
+
+      ctx.save();
+      ctx.translate(midX, midY);
+      ctx.rotate(angle);
+
+      // Gold Frame Bridge
+      ctx.strokeStyle = '#ffd369';
+      ctx.lineWidth = Math.max(3, faceWidth * 0.018);
+      ctx.beginPath();
+      ctx.moveTo(-eyeDist * 0.15, -lensH * 0.15);
+      ctx.lineTo(eyeDist * 0.15, -lensH * 0.15);
+      ctx.stroke();
+
+      // Left & Right Dark Chocolate Tinted Lenses
+      [-eyeDist * 0.52, eyeDist * 0.52].forEach((lx) => {
+        const lensGrad = ctx.createLinearGradient(lx, -lensH / 2, lx, lensH / 2);
+        lensGrad.addColorStop(0, 'rgba(36, 11, 4, 0.92)');
+        lensGrad.addColorStop(0.5, 'rgba(78, 31, 14, 0.84)');
+        lensGrad.addColorStop(1, 'rgba(20, 6, 2, 0.95)');
+
+        ctx.fillStyle = lensGrad;
+        ctx.beginPath();
+        ctx.roundRect(lx - lensW / 2, -lensH * 0.42, lensW, lensH, [10, 10, 24, 24]);
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffd369';
+        ctx.lineWidth = Math.max(2.5, faceWidth * 0.014);
+        ctx.stroke();
+
+        // Diagonal Gold Specular Reflection
+        ctx.fillStyle = 'rgba(255, 230, 153, 0.25)';
+        ctx.beginPath();
+        ctx.moveTo(lx - lensW * 0.25, -lensH * 0.35);
+        ctx.lineTo(lx - lensW * 0.05, -lensH * 0.35);
+        ctx.lineTo(lx - lensW * 0.3, lensH * 0.42);
+        ctx.lineTo(lx - lensW * 0.42, lensH * 0.42);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      ctx.restore();
+    }
+
+    // FILTER 5: Champion Trophy Aura
+    function drawFilterTrophyAura(ctx, pts, w, h, timestamp) {
+      const { forehead, faceWidth, angle } = pts;
+      const bob = Math.sin(timestamp * 0.004) * 8;
+      const trophySize = faceWidth * 0.48;
+
+      ctx.save();
+      ctx.translate(forehead.x, forehead.y - trophySize * 0.95 + bob);
+      ctx.rotate(angle);
+
+      // Golden Sunburst Halo behind Trophy
+      const halo = ctx.createRadialGradient(0, 0, 4, 0, 0, trophySize * 1.1);
+      halo.addColorStop(0, 'rgba(255, 230, 140, 0.85)');
+      halo.addColorStop(0.5, 'rgba(212, 155, 53, 0.35)');
+      halo.addColorStop(1, 'rgba(212, 155, 53, 0)');
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(0, 0, trophySize * 1.1, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Championship Cup Body
+      ctx.fillStyle = '#ffd369';
+      ctx.strokeStyle = '#5c2511';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-trophySize * 0.35, -trophySize * 0.4);
+      ctx.lineTo(trophySize * 0.35, -trophySize * 0.4);
+      ctx.lineTo(trophySize * 0.22, trophySize * 0.12);
+      ctx.lineTo(-trophySize * 0.22, trophySize * 0.12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Stem & Pedestal
+      ctx.fillRect(-trophySize * 0.08, trophySize * 0.12, trophySize * 0.16, trophySize * 0.22);
+      ctx.fillStyle = '#3b1509';
+      ctx.fillRect(-trophySize * 0.26, trophySize * 0.34, trophySize * 0.52, trophySize * 0.14);
+
+      ctx.restore();
+    }
+
+    // Floating Gold & Stadium Confetti Particles
+    function drawFloatingParticles(ctx, w, h) {
+      state.particles.forEach((p) => {
+        p.y -= p.speedY;
+        p.x += p.drift + Math.sin(p.phase) * 0.0008;
+        p.phase += 0.04;
+        if (p.y < -0.05) {
+          p.y = 1.05;
+          p.x = Math.random();
+        }
+        ctx.save();
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = 0.72;
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    // ==================== CAPTURE HIGH-RES BRANDED SNAPSHOT ====================
+    function captureArSnapshot() {
+      playToneSfx('shutter');
+
+      // Camera flash animation
+      const flashEl = document.getElementById('camera-flash');
+      flashEl.style.opacity = state.flashOn ? '1' : '0.65';
+      setTimeout(() => {
+        flashEl.style.opacity = '0';
+      }, 140);
+
+      // Composite current AR frame + Dark Fantasy Bottom Chocolate Frame onto offscreen export canvas
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = 720;
+      exportCanvas.height = 1280;
+      const ectx = exportCanvas.getContext('2d');
+
+      // Draw current live AR canvas
+      ectx.drawImage(canvasEl, 0, 0, 720, 1280);
+
+      // Draw Top-Left Dark Fantasy Badge on exported photo
+      ectx.save();
+      ectx.fillStyle = 'rgba(36, 11, 4, 0.88)';
+      ectx.beginPath();
+      ectx.roundRect(28, 32, 210, 62, 31);
+      ectx.fill();
+      ectx.strokeStyle = '#d49b35';
+      ectx.lineWidth = 2.5;
+      ectx.stroke();
+
+      ectx.fillStyle = '#fde68a';
+      ectx.font = '700 13px "Plus Jakarta Sans", sans-serif';
+      ectx.fillText('SUNFEAST', 56, 56);
+      ectx.fillStyle = '#ffd369';
+      ectx.font = '800 22px "Cinzel", serif';
+      ectx.fillText('Dark Fantasy', 56, 80);
+      ectx.restore();
+
+      // Draw Bottom Molten Chocolate Wave & Tagline (Matching Reference Image Footer)
+      ectx.save();
+      const grad = ectx.createLinearGradient(0, 1060, 0, 1280);
+      grad.addColorStop(0, 'rgba(62, 23, 10, 0.92)');
+      grad.addColorStop(1, '#170602');
+      ectx.fillStyle = grad;
+
+      ectx.beginPath();
+      ectx.moveTo(0, 1110);
+      ectx.bezierCurveTo(180, 1050, 260, 1145, 420, 1100);
+      ectx.bezierCurveTo(560, 1060, 640, 1120, 720, 1085);
+      ectx.lineTo(720, 1280);
+      ectx.lineTo(0, 1280);
+      ectx.closePath();
+      ectx.fill();
+
+      ectx.fillStyle = '#ffd369';
+      ectx.font = '800 32px "Cinzel", serif';
+      ectx.textAlign = 'center';
+      ectx.fillText('A Lot Can Happen Inside!', 360, 1190);
+
+      ectx.fillStyle = 'rgba(255, 243, 214, 0.9)';
+      ectx.font = '600 20px "Plus Jakarta Sans", sans-serif';
+      ectx.fillText('@SunfeastDarkFantasy', 360, 1228);
+      ectx.restore();
+
+      state.capturedDataUrl = exportCanvas.toDataURL('image/png');
+      document.getElementById('captured-preview-img').src = state.capturedDataUrl;
+
+      // Transition to Stage 3 (Gratification Form)
+      stageGratification.classList.remove('hidden');
+      gsap.fromTo(stageGratification, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' });
+    }
+
+    // ==================== STAMP USER NAME & VOUCHER ON FINAL SAVED IMAGE ====================
+    function generatePersonalizedImage(userName) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = 720;
+          c.height = 1280;
+          const g = c.getContext('2d');
+          g.drawImage(img, 0, 0, 720, 1280);
+
+          // Verified Fan Badge Top Right
+          g.save();
+          g.fillStyle = 'rgba(28, 9, 4, 0.9)';
+          g.beginPath();
+          g.roundRect(435, 32, 255, 62, 18);
+          g.fill();
+          g.strokeStyle = '#ffd369';
+          g.lineWidth = 2;
+          g.stroke();
+
+          g.fillStyle = '#ffd369';
+          g.font = '800 14px "Plus Jakarta Sans", sans-serif';
+          g.fillText('OFFICIAL FAN PASS', 455, 55);
+          g.fillStyle = '#ffffff';
+          g.font = '700 17px "Plus Jakarta Sans", sans-serif';
+          const safeName = (userName || 'Champion Fan').slice(0, 18);
+          g.fillText(safeName, 455, 80);
+          g.restore();
+
+          resolve(c.toDataURL('image/png'));
+        };
+        img.src = state.capturedDataUrl;
+      });
+    }
+
+    // ==================== UI EVENT LISTENERS ====================
+    function showToast(msg) {
+      const toast = document.getElementById('toast-msg');
+      toast.textContent = msg;
+      toast.style.opacity = '1';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+      }, 2400);
+    }
+
+    // Stage 1 -> Stage 2
+    btnStartAr.addEventListener('click', async () => {
+      playToneSfx('lens');
+      document.getElementById('camera-error').classList.add('hidden');
+      const started = await initWebAR();
+      if (!started) return;
+      gsap.to(stageIntro, {
+        opacity: 0,
+        scale: 1.04,
+        duration: 0.45,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          stageIntro.classList.add('hidden');
+        }
+      });
+    });
+
+    // Top Bar Controls
+    document.getElementById('btn-back-intro').addEventListener('click', () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((track) => track.stop());
+        cameraStream = null;
+      }
+      videoEl.srcObject = null;
+      stageIntro.classList.remove('hidden');
+      gsap.to(stageIntro, { opacity: 1, scale: 1, duration: 0.35 });
+    });
+
+    document.getElementById('btn-toggle-sound').addEventListener('click', () => {
+      state.soundOn = !state.soundOn;
+      document.getElementById('icon-sound-on').classList.toggle('hidden', !state.soundOn);
+      document.getElementById('icon-sound-off').classList.toggle('hidden', state.soundOn);
+      showToast(state.soundOn ? 'Sound Effects On' : 'Muted');
+    });
+
+    document.getElementById('btn-toggle-flash').addEventListener('click', () => {
+      state.flashOn = !state.flashOn;
+      document.getElementById('icon-flash').classList.toggle('text-[#ffd369]', state.flashOn);
+      showToast(state.flashOn ? 'Screen Flash Enabled' : 'Flash Off');
+    });
+
+    document.getElementById('btn-flip-cam').addEventListener('click', async () => {
+      state.facingMode = state.facingMode === 'user' ? 'environment' : 'user';
+      playToneSfx('lens');
+      const started = await startWebcamStream();
+      if (started) {
+        showToast(state.facingMode === 'user' ? 'Front Selfie Camera' : 'Rear Camera');
+      } else {
+        state.facingMode = state.facingMode === 'user' ? 'environment' : 'user';
+      }
+    });
+
+    // Right Toolbar Controls
+    // Bottom Carousel Side Controls
+    document.getElementById('btn-reset-filter').addEventListener('click', () => {
+      state.activeFilterIndex = 0;
+      renderLensCarousel();
+      playToneSfx('lens');
+    });
+
+    // Stage 3: Retake Button
+    document.getElementById('btn-retake').addEventListener('click', () => {
+      stageGratification.classList.add('hidden');
+      document.getElementById('gratification-form').classList.remove('hidden');
+      document.getElementById('reward-unlocked-panel').classList.add('hidden');
+      document.getElementById('unlocked-ribbon').classList.add('hidden');
+    });
+
+    document.getElementById('btn-try-another').addEventListener('click', () => {
+      document.getElementById('btn-retake').click();
+    });
+
+    // Stage 3: Gratification Lead Form Submission
+    document.getElementById('gratification-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nameVal = document.getElementById('input-name').value.trim();
+      const phoneVal = document.getElementById('input-phone').value.trim();
+      const errEl = document.getElementById('form-error-msg');
+
+      if (nameVal.length < 2) {
+        errEl.textContent = 'Please enter your full name to personalize your fan pass.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (!/^[6-9]\d{9}$/.test(phoneVal)) {
+        errEl.textContent = 'Please enter a valid 10-digit Indian mobile number.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      errEl.classList.add('hidden');
+      state.userName = nameVal;
+      playToneSfx('win');
+
+      // Personalize captured image with fan name
+      state.capturedDataUrl = await generatePersonalizedImage(nameVal);
+      document.getElementById('captured-preview-img').src = state.capturedDataUrl;
+
+      // Update UI to Reward Unlocked + Save Image
+      document.getElementById('ribbon-user-name').textContent = nameVal;
+      document.getElementById('unlocked-ribbon').classList.remove('hidden');
+      document.getElementById('gratification-form').classList.add('hidden');
+      document.getElementById('reward-unlocked-panel').classList.remove('hidden');
+      showToast('Reward Unlocked! Ready to Save Image.');
+    });
+
+    // Copy Voucher Code
+    document.getElementById('btn-copy-code').addEventListener('click', () => {
+      const tempInput = document.createElement('input');
+      tempInput.value = 'DFWIN2026';
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      showToast('Voucher DFWIN2026 Copied!');
+    });
+
+    // Stage 4: One-Click Save Image to Device
+    document.getElementById('btn-save-image').addEventListener('click', () => {
+      if (!state.capturedDataUrl) return;
+      const link = document.createElement('a');
+      link.download = `DarkFantasy_AR_${(state.userName || 'Fan').replace(/\s+/g, '_')}.png`;
+      link.href = state.capturedDataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      playToneSfx('win');
+      showToast('HD AR Image Saved to Downloads!');
+    });
+
+    // Web Share API Support for Mobile Social Sharing
+    document.getElementById('btn-share-image').addEventListener('click', async () => {
+      if (!state.capturedDataUrl) return;
+      try {
+        const res = await fetch(state.capturedDataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], 'DarkFantasy_AR_Look.png', { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: 'Sunfeast Dark Fantasy — A Lot Can Happen Inside!',
+            text: 'Check out my Dark Fantasy Stadium AR look! #ALotCanHappenInside @SunfeastDarkFantasy',
+            files: [file]
+          });
+        } else {
+          document.getElementById('btn-save-image').click();
+        }
+      } catch (err) {
+        document.getElementById('btn-save-image').click();
+      }
+    });
+
+    // Boot Application
+    window.addEventListener('DOMContentLoaded', () => {
+      renderLensCarousel();
+      runIntroLoader();
+      const introVideo = document.getElementById('intro-video');
+      introVideo.play().catch(() => {
+        // Muted autoplay is allowed by most browsers; retry on the first user gesture otherwise.
+        const resumeIntroVideo = () => {
+          introVideo.play().catch(() => {});
+          window.removeEventListener('pointerdown', resumeIntroVideo);
+          window.removeEventListener('keydown', resumeIntroVideo);
+        };
+        window.addEventListener('pointerdown', resumeIntroVideo, { once: true });
+        window.addEventListener('keydown', resumeIntroVideo, { once: true });
+      });
+    });
+  </script>
+</body>
+</html>

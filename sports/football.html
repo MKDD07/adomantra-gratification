@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <title>Goal Rush</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@500;700;800&display=swap">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.js"></script>
+    <style>
+        :root {
+            --o: #ff7a1a;
+            --g: #b6ff3b;
+            --k: #0a0a0a;
+            --bg: #16171a
+        }
+
+        @media (prefers-color-scheme:dark) {
+            :root {
+                --bg: #16171a
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Manrope, system-ui, sans-serif;
+            overflow: hidden;
+            padding: env(safe-area-inset-top, 0) 0 env(safe-area-inset-bottom, 0)
+        }
+
+        .phone {
+            position: relative;
+            height: min(97vh, calc(97vw*2.117));
+            aspect-ratio: 2772/5868;
+            container-type: inline-size;
+            user-select: none
+        }
+
+        #frame {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9;
+            pointer-events: none
+        }
+
+        .screen {
+            position: absolute;
+            left: 2.38%;
+            right: 2.38%;
+            top: 1.12%;
+            bottom: 1.12%;
+            border-radius: 11cqw;
+            overflow: hidden;
+            background: #0a0a0a;
+            color: #fff
+        }
+
+        .scr {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 14cqw 6cqw 6cqw;
+            background: radial-gradient(120% 60% at 50% 0, #3a1a06, #0a0a0a 60%)
+        }
+
+        .scr.on {
+            display: flex
+        }
+
+        h1 {
+            font: 400 9cqw/1 Anton, Impact, sans-serif;
+            letter-spacing: .01em;
+            text-align: center
+        }
+
+        p.s {
+            font-size: 3.6cqw;
+            color: #c9c9c9;
+            text-align: center;
+            line-height: 1.4;
+            margin-top: 2cqw
+        }
+
+        img {
+            display: block;
+            max-width: 100%
+        }
+
+        button {
+            font: inherit;
+            border: 0;
+            background: none;
+            cursor: pointer;
+            color: inherit
+        }
+
+        :focus-visible {
+            outline: .6cqw solid var(--g);
+            outline-offset: .6cqw
+        }
+
+        .sb img {
+            width: 100%;
+            transition: transform .12s
+        }
+
+        .sb:active img {
+            transform: scale(.95)
+        }
+
+        /* scan */
+        #vf {
+            position: relative;
+            width: 64cqw;
+            height: 64cqw;
+            margin-top: 7cqw;
+            border-radius: 4cqw;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        #qr {
+            width: 52cqw;
+            height: 52cqw;
+            border-radius: 2cqw
+        }
+
+        #qb {
+            position: absolute;
+            width: 11cqw;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border-radius: 50%;
+            padding: 1cqw
+        }
+
+        .cn {
+            position: absolute;
+            width: 9cqw;
+            height: 9cqw;
+            border: 1cqw solid var(--o)
+        }
+
+        .c1 {
+            left: 0;
+            top: 0;
+            border-right: 0;
+            border-bottom: 0;
+            border-radius: 4cqw 0 0 0
+        }
+
+        .c2 {
+            right: 0;
+            top: 0;
+            border-left: 0;
+            border-bottom: 0;
+            border-radius: 0 4cqw 0 0
+        }
+
+        .c3 {
+            left: 0;
+            bottom: 0;
+            border-right: 0;
+            border-top: 0;
+            border-radius: 0 0 0 4cqw
+        }
+
+        .c4 {
+            right: 0;
+            bottom: 0;
+            border-left: 0;
+            border-top: 0;
+            border-radius: 0 0 4cqw 0
+        }
+
+        #laser {
+            position: absolute;
+            left: 6%;
+            right: 6%;
+            top: 8%;
+            height: .9cqw;
+            background: var(--g);
+            box-shadow: 0 0 4cqw var(--g);
+            opacity: 0
+        }
+
+        .scanning #laser {
+            opacity: 1;
+            animation: lz 1.2s ease-in-out infinite alternate
+        }
+
+        @keyframes lz {
+            to {
+                top: 90%
+            }
+        }
+
+        #vmsg {
+            margin-top: 5cqw;
+            font: 400 5.6cqw Anton, sans-serif;
+            color: var(--g);
+            min-height: 7cqw;
+            letter-spacing: .02em
+        }
+
+        #tapi {
+            width: 13cqw;
+            margin-top: 3cqw;
+            animation: tp 1.4s ease-in-out infinite
+        }
+
+        @keyframes tp {
+            50% {
+                transform: translateY(-2cqw)
+            }
+        }
+
+        /* form */
+        form {
+            width: 100%;
+            margin-top: 5cqw;
+            display: flex;
+            flex-direction: column;
+            gap: 3.2cqw
+        }
+
+        label {
+            font-size: 3.2cqw;
+            font-weight: 700;
+            color: #d8d8d8;
+            display: block;
+            margin-bottom: 1cqw
+        }
+
+        input {
+            width: 100%;
+            height: 11.5cqw;
+            border-radius: 3cqw;
+            border: .5cqw solid #3a3a3a;
+            background: #17171a;
+            color: #fff;
+            padding: 0 4cqw;
+            font: 600 4cqw Manrope, sans-serif
+        }
+
+        input:focus {
+            border-color: var(--o);
+            outline: 0;
+            box-shadow: 0 0 0 .8cqw rgba(255, 122, 26, .3)
+        }
+
+        input.bad {
+            border-color: #ff4d4d
+        }
+
+        .er {
+            font-size: 3cqw;
+            color: #ff8a8a;
+            min-height: 3.6cqw;
+            margin-top: .6cqw
+        }
+
+        #fsub {
+            width: 32cqw;
+            align-self: center;
+            margin-top: 1cqw
+        }
+
+        /* game */
+        .game {
+            background: linear-gradient(#06100a, #0d2a17 45%, #14401f);
+            padding: 0
+        }
+
+        .game:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .035) 0 12cqw, transparent 12cqw 24cqw)
+        }
+
+        .box {
+            position: absolute;
+            left: 5cqw;
+            right: 5cqw;
+            top: 86cqw;
+            height: 62cqw;
+            border: .7cqw solid rgba(255, 255, 255, .2);
+            border-top: 0
+        }
+
+        .arc {
+            position: absolute;
+            left: 50%;
+            top: 136cqw;
+            width: 34cqw;
+            height: 34cqw;
+            border: .7cqw solid rgba(255, 255, 255, .2);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            clip-path: inset(50% 0 0 0)
+        }
+
+        .a {
+            position: absolute
+        }
+
+        #board {
+            top: 13cqw;
+            left: 50%;
+            width: 76cqw;
+            transform: translateX(-50%)
+        }
+
+        #board span {
+            position: absolute;
+            font: 400 5.4cqw Anton, sans-serif;
+            background: #17171a;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            border-radius: 1.5cqw
+        }
+
+        .bl {
+            position: absolute;
+            width: 8.4cqw;
+            height: 8.4cqw;
+            border-radius: 50%;
+            background: #0a0a0a;
+            opacity: 0;
+            transition: opacity .3s
+        }
+
+        .bl.u {
+            opacity: .82
+        }
+
+        #goalw {
+            top: 49cqw;
+            left: 50%;
+            width: 80cqw;
+            transform: translateX(-50%)
+        }
+
+        #goalw>img:first-child {
+            width: 100%
+        }
+
+        #gk {
+            position: absolute;
+            bottom: 3%;
+            left: 50%;
+            width: 25%;
+            transform: translateX(-50%);
+            transition: left .38s cubic-bezier(.2, .8, .3, 1), bottom .38s;
+            z-index: 2
+        }
+
+        #gk.fl {
+            transform: translateX(-50%) scaleX(-1)
+        }
+
+        .tg {
+            position: absolute;
+            width: 11cqw;
+            transform: translate(-50%, -50%);
+            opacity: .8;
+            animation: pu 1.6s ease-in-out infinite
+        }
+
+        .tg.sel {
+            opacity: 1;
+            filter: hue-rotate(-60deg) saturate(2) brightness(1.2);
+            animation: none;
+            transform: translate(-50%, -50%) scale(1.25)
+        }
+
+        @keyframes pu {
+            50% {
+                transform: translate(-50%, -50%) scale(1.12)
+            }
+        }
+
+        #ball {
+            top: 128cqw;
+            left: 50%;
+            width: 11cqw;
+            margin-left: -5.5cqw;
+            z-index: 3
+        }
+
+        #st {
+            top: 141cqw;
+            left: 20cqw;
+            width: 10cqw;
+            transform: translate(-50%, -100%);
+            transition: left .17s linear;
+            z-index: 4;
+            pointer-events: none
+        }
+
+        #pw {
+            top: 156cqw;
+            left: 50%;
+            width: 70cqw;
+            transform: translateX(-50%)
+        }
+
+        #mk {
+            position: absolute;
+            top: -2cqw;
+            bottom: -2cqw;
+            width: 1.4cqw;
+            background: #fff;
+            border-radius: 1cqw;
+            box-shadow: 0 0 2cqw #fff;
+            left: 0
+        }
+
+        #zone {
+            position: absolute;
+            left: 45%;
+            width: 35%;
+            top: 115%;
+            height: 1cqw;
+            background: var(--g);
+            border-radius: 1cqw;
+            opacity: .8
+        }
+
+        #sh {
+            top: 171cqw;
+            left: 50%;
+            width: 32cqw;
+            transform: translateX(-50%);
+            transition: opacity .2s
+        }
+
+        #sh:disabled {
+            opacity: .4;
+            filter: grayscale(.6)
+        }
+
+        #hint {
+            top: 190cqw;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 3.5cqw;
+            color: #cfe9d6;
+            font-weight: 700
+        }
+
+        #badge {
+            top: 78cqw;
+            left: 50%;
+            width: 58cqw;
+            margin-left: -29cqw;
+            z-index: 6;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(.3) rotate(-8deg)
+        }
+
+        #badge.on {
+            opacity: 1;
+            transform: scale(1) rotate(-3deg);
+            transition: transform .35s cubic-bezier(.3, 1.6, .5, 1), opacity .15s
+        }
+
+        .px {
+            position: absolute;
+            width: 2.4cqw;
+            height: 2.4cqw;
+            border-radius: .5cqw;
+            animation: fl 2.8s linear forwards
+        }
+
+        @keyframes fl {
+            to {
+                transform: translateY(215cqw) rotate(540deg)
+            }
+        }
+
+        /* reward */
+        .rw {
+            justify-content: flex-start;
+            padding: 14cqw 5cqw 4cqw;
+            background: radial-gradient(110% 55% at 50% 0, #4a2208, #0a0a0a 62%)
+        }
+
+        .rw h1 {
+            font-size: 9cqw
+        }
+
+        #balls {
+            display: flex;
+            gap: 2.4cqw;
+            margin-top: 3cqw
+        }
+
+        #balls img {
+            width: 7cqw
+        }
+
+        #balls img.m {
+            filter: grayscale(1) brightness(.35)
+        }
+
+        .card {
+            position: relative;
+            width: 76cqw;
+            margin-top: 4cqw;
+            border-radius: 5cqw;
+            padding: .9cqw;
+            background: linear-gradient(135deg, #ffb066, #ff7a1a 40%, #7a2d00);
+            box-shadow: 0 3cqw 8cqw rgba(255, 122, 26, .25)
+        }
+
+        .ci {
+            background: #140d08;
+            border-radius: 4.3cqw;
+            overflow: hidden
+        }
+
+        .ch {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2.6cqw 4cqw;
+            font: 400 3.6cqw Anton, sans-serif;
+            letter-spacing: .14em;
+            color: var(--o);
+            border-bottom: .3cqw dashed rgba(255, 255, 255, .2)
+        }
+
+        .ch b {
+            color: #8d8d8d;
+            font-weight: 400;
+            letter-spacing: .08em
+        }
+
+        .cb {
+            position: relative;
+            height: 64cqw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2cqw;
+            background: radial-gradient(circle at 50% 42%, rgba(255, 200, 80, .3), transparent 62%)
+        }
+
+        #r1 {
+            height: 30cqw;
+            width: auto;
+            max-width: 44cqw;
+            object-fit: contain;
+            filter: drop-shadow(0 2cqw 3cqw #000a)
+        }
+
+        #rk {
+            font: 400 3.4cqw Anton, sans-serif;
+            letter-spacing: .22em;
+            color: var(--g)
+        }
+
+        #rp {
+            font: 400 8cqw/1 Anton, sans-serif;
+            text-align: center;
+            padding: 0 3cqw
+        }
+
+        #sc2 {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+            cursor: grab;
+            transition: opacity .6s, transform .6s
+        }
+
+        .open #sc2 {
+            opacity: 0;
+            transform: scale(1.08);
+            pointer-events: none
+        }
+
+        .cf {
+            padding: 2.8cqw;
+            text-align: center;
+            font-size: 3.2cqw;
+            color: #a0a0a0;
+            font-weight: 600
+        }
+
+        .cf button {
+            color: var(--g);
+            font-weight: 800;
+            text-decoration: underline;
+            font-size: 3.2cqw
+        }
+
+        .open .cf {
+            display: none
+        }
+
+        #after {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 76cqw
+        }
+
+        .open #after {
+            display: flex;
+            animation: up .5s ease-out
+        }
+
+        @keyframes up {
+            from {
+                opacity: 0;
+                transform: translateY(4cqw)
+            }
+        }
+
+        .cp {
+            width: 100%;
+            margin-top: 4cqw;
+            border: .6cqw dashed var(--o);
+            border-radius: 4cqw;
+            padding: 3cqw;
+            text-align: center;
+            background: rgba(255, 122, 26, .08)
+        }
+
+        .cp b {
+            display: block;
+            font: 400 5cqw Anton, sans-serif;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--g);
+            margin-bottom: .6cqw
+        }
+
+        .cp small {
+            display: block;
+            font-size: 3.3cqw;
+            line-height: 1.4;
+            color: #cfcfcf
+        }
+
+        #rbtn {
+            width: 34cqw;
+            margin-top: 4cqw
+        }
+
+        #s-retry {
+            justify-content: flex-start;
+            background: radial-gradient(110% 55% at 50% 0, #4a2208, #0a0a0a 62%)
+        }
+
+        #rtbtn {
+            width: 38cqw;
+            margin-top: 8cqw;
+            display: none;
+            animation: fu .5s ease-out
+        }
+
+        #again {
+            width: 34cqw;
+            margin-top: 4cqw;
+            display: none
+        }
+
+        #ntf {
+            position: absolute;
+            left: 50%;
+            top: 11.5cqw;
+            width: 88cqw;
+            margin-left: -44cqw;
+            z-index: 8;
+            display: flex;
+            gap: 3cqw;
+            align-items: center;
+            padding: 3cqw;
+            border-radius: 6.5cqw;
+            background: rgba(246, 246, 248, .86);
+            -webkit-backdrop-filter: blur(24px) saturate(1.8);
+            backdrop-filter: blur(24px) saturate(1.8);
+            color: #111;
+            box-shadow: 0 3cqw 8cqw rgba(0, 0, 0, .45);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            transform: translateY(-32cqw);
+            opacity: 0;
+            transition: transform .55s cubic-bezier(.2, 1.2, .3, 1), opacity .3s;
+            cursor: pointer
+        }
+
+        #ntf.on {
+            transform: none;
+            opacity: 1
+        }
+
+        #ntf img {
+            width: 11cqw;
+            height: 11cqw;
+            border-radius: 2.6cqw;
+            flex: none
+        }
+
+        #ntf div {
+            min-width: 0;
+            flex: 1
+        }
+
+        #ntf p {
+            font-size: 3.5cqw;
+            line-height: 1.3
+        }
+
+        #ntf p:first-child {
+            display: flex;
+            justify-content: space-between
+        }
+
+        #ntf b {
+            font-weight: 600
+        }
+
+        #ntf span {
+            color: #6b6b70;
+            font-size: 3.1cqw
+        }
+
+        #nb {
+            color: #222
+        }
+
+        .open #r1 {
+            animation: pz .7s cubic-bezier(.3, 1.7, .5, 1) .15s backwards
+        }
+
+        .open #rk {
+            animation: fu .5s ease-out .35s backwards
+        }
+
+        .open #rp {
+            animation: fu .5s ease-out .5s backwards
+        }
+
+        @keyframes pz {
+            from {
+                transform: scale(.2) rotate(-12deg);
+                opacity: 0
+            }
+        }
+
+        @keyframes fu {
+            from {
+                opacity: 0;
+                transform: translateY(3cqw)
+            }
+        }
+
+        .open .card {
+            animation: gl 1.6s ease-out
+        }
+
+        @keyframes gl {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 160, 40, .75)
+            }
+
+            60% {
+                box-shadow: 0 0 0 6cqw rgba(255, 160, 40, 0)
+            }
+        }
+
+        .cb:after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .4) 50%, transparent 60%);
+            transform: translateX(-120%);
+            pointer-events: none
+        }
+
+        .open .cb:after {
+            animation: sh 1.1s ease-out .3s
+        }
+
+        @keyframes sh {
+            to {
+                transform: translateX(120%)
+            }
+        }
+
+        .fk {
+            position: absolute;
+            width: 1.3cqw;
+            height: 1.3cqw;
+            background: #e4e7ec;
+            border-radius: .3cqw;
+            pointer-events: none;
+            z-index: 2;
+            animation: fk .7s ease-in forwards
+        }
+
+        @keyframes fk {
+            to {
+                transform: translate(var(--dx), 10cqw) rotate(260deg);
+                opacity: 0
+            }
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            * {
+                animation: none !important;
+                transition: none !important
+            }
+        }
+
+        /* RecordRTC Live Recorder Widget */
+        #rtc-widget {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 9999;
+            font-family: Manrope, system-ui, sans-serif;
+            user-select: none;
+        }
+
+        .rtc-pill, .rtc-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(22, 23, 26, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            padding: 8px 14px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .15s ease, background .2s ease, border-color .2s ease;
+        }
+
+        .rtc-pill:hover, .rtc-bar:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .rtc-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff3b30;
+            display: inline-block;
+        }
+
+        .rec-pulse {
+            animation: rtcPulse 1.2s infinite ease-in-out;
+        }
+
+        @keyframes rtcPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.85); }
+        }
+
+        .rtc-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #ff5247;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .06em;
+        }
+
+        #rec-timer {
+            font-family: monospace;
+            font-size: 13px;
+            letter-spacing: .05em;
+            color: #eee;
+            min-width: 42px;
+        }
+
+        .rtc-tool {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all .15s ease;
+            outline: none;
+            padding: 0;
+        }
+
+        .rtc-tool:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.08);
+        }
+
+        .rtc-tool-stop {
+            background: #ff3b30;
+            border-color: #ff3b30;
+        }
+
+        .rtc-tool-stop:hover {
+            background: #ff5247;
+            border-color: #ff5247;
+        }
+
+        /* Live Recorder Modal */
+        .rec-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            font-family: Manrope, system-ui, sans-serif;
+            animation: recFadeIn .2s ease-out;
+        }
+
+        @keyframes recFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .rec-modal-card {
+            background: #1e2025;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rec-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .rec-modal-head h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .rec-close {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+        }
+        .rec-close:hover { color: #fff; }
+
+        .rec-video-wrap {
+            padding: 16px;
+            background: #0d0e10;
+            display: flex;
+            justify-content: center;
+        }
+
+        #rec-video {
+            width: 100%;
+            max-height: 60vh;
+            border-radius: 12px;
+            background: #000;
+        }
+
+        .rec-modal-actions {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            background: #18191d;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .rec-btn-action {
+            flex: 1;
+            padding: 11px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all .15s ease;
+            font-family: inherit;
+        }
+
+        .rec-btn-download {
+            background: var(--g);
+            color: #0a0a0a;
+        }
+        .rec-btn-download:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .rec-btn-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ddd;
+        }
+        .rec-btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="phone">
+        <div class="screen">
+            <section class="scr on" id="s-scan"><img data-i="logo" style="width:40cqw">
+                <h1 style="margin-top:6cqw">Scan the code<br>to enter</h1>
+                <p class="s">Point your camera at the Goal Rush code on the counter.</p>
+                <button id="vf" aria-label="Scan the code"><canvas id="qr" width="260" height="260"></canvas><img id="qb" data-i="ball"><i class="cn c1"></i><i class="cn c2"></i><i class="cn c3"></i><i class="cn c4"></i><i id="laser"></i></button>
+                <div id="vmsg">Tap the code to scan</div><img id="tapi" data-i="tap" alt="">
+            </section>
+            <section class="scr" id="s-form"><img data-i="logoicon" style="width:24cqw">
+                <h1 style="margin-top:3cqw;font-size:8cqw">Your details</h1>
+                <p class="s">Code verified. Tell us who&rsquo;s taking the penalties.</p>
+                <form id="f" novalidate>
+                    <div><label for="n">Full name</label><input id="n" autocomplete="name">
+                        <div class="er"></div>
+                    </div>
+                    <div><label for="m">Mobile number</label><input id="m" inputmode="numeric" maxlength="10" autocomplete="tel">
+                        <div class="er"></div>
+                    </div>
+                    <div><label for="e">Email</label><input id="e" type="email" autocomplete="email">
+                        <div class="er"></div>
+                    </div>
+                    <div><label for="c">City</label><input id="c" autocomplete="address-level2">
+                        <div class="er"></div>
+                    </div>
+                    <button class="sb" id="fsub" type="submit"><img data-i="b_play" alt="Play"></button>
+                </form>
+            </section>
+            <section class="scr game" id="s-game">
+                <div class="box"></div>
+                <div class="arc"></div>
+                <div class="a" id="board"><img data-i="board"><span id="sc" style="left:6%;width:26%;top:27%;height:26%">0000</span><span id="tm" style="left:37%;width:28%;top:27%;height:26%">00:00</span><span id="at" style="left:69%;width:26%;top:27%;height:26%">0/3</span><i class="bl" style="left:28.6%;top:59.5%"></i><i class="bl" style="left:44.7%;top:59.5%"></i><i class="bl" style="left:61.3%;top:59.5%"></i></div>
+                <div class="a" id="goalw"><img data-i="goal"><img id="gk" data-i="gk"></div>
+                <img class="a" id="ball" data-i="ball"><img class="a" id="st" data-i="striker">
+                <div class="a" id="pw"><img data-i="pwr1"><i id="mk"></i><i id="zone"></i></div>
+                <button class="a sb" id="sh" disabled><img data-i="b_shoot" alt="Shoot"></button>
+                <div class="a" id="hint">Tap anywhere in the goal to aim</div><img class="a" id="badge" data-i="goalb">
+            </section>
+            <section class="scr" id="s-retry"><img data-i="whistle" style="width:30cqw;margin-top:8cqw">
+                <h1 style="margin-top:6cqw">No goals<br>this time</h1>
+                <p class="s" id="rtx">Hold on&hellip; a message is on its way.</p><button class="sb" id="rtbtn"><img data-i="b_again" alt="Retry"></button>
+            </section>
+            <section class="scr rw" id="s-rew">
+                <h1>Full time!</h1>
+                <p class="s" id="rs2"></p>
+                <div id="balls"></div>
+                <div class="card">
+                    <div class="ci">
+                        <div class="ch"><span>LUCKY CARD</span><b id="cno"></b></div>
+                        <div class="cb"><img id="r1" alt="">
+                            <div id="rk"></div>
+                            <div id="rp"></div><canvas id="sc2" aria-label="Scratch area"></canvas>
+                        </div>
+                        <div class="cf">Scratch the foil with your finger</div>
+                    </div>
+                </div>
+                <div id="after">
+                    <div class="cp"><b id="rtxt"></b><small id="rn"></small></div><button class="sb" id="rbtn"><img data-i="b_claim" alt="Claim reward"></button><button class="sb" id="again"><img data-i="b_again" alt="Play again"></button>
+                </div>
+            </section>
+            <div id="ntf" role="status" aria-live="polite"><img data-i="icon" alt="">
+                <div>
+                    <p><b>Goal Rush</b><span>now</span></p>
+                    <p id="nb"></p>
+                </div>
+            </div>
+        </div><img id="frame" alt="">
+    </div>
+
+    <!-- RecordRTC Live Screen Recorder Widget -->
+    <div id="rtc-widget">
+        <button id="rec-start-btn" class="rtc-pill" title="Start Live Recording">
+            <span class="rtc-dot"></span>
+            <span>Record</span>
+        </button>
+        <div id="rec-bar" class="rtc-bar" style="display:none">
+            <span class="rtc-status"><span class="rtc-dot rec-pulse"></span><span id="rec-label">REC</span></span>
+            <span id="rec-timer">00:00</span>
+            <button id="rec-pause-btn" class="rtc-tool" title="Pause / Resume">⏸</button>
+            <button id="rec-stop-btn" class="rtc-tool rtc-tool-stop" title="Stop & Save">⏹</button>
+        </div>
+    </div>
+
+    <!-- Live Recording Preview & Download Modal -->
+    <div id="rec-modal" class="rec-modal" style="display:none">
+        <div class="rec-modal-card">
+            <div class="rec-modal-head">
+                <h3>Live Recording Finished</h3>
+                <button id="rec-close-btn" class="rec-close" title="Close">&times;</button>
+            </div>
+            <div class="rec-video-wrap">
+                <video id="rec-video" controls playsinline></video>
+            </div>
+            <div class="rec-modal-actions">
+                <button id="rec-download-btn" class="rec-btn-action rec-btn-download">
+                    <span>Download Recording</span>
+                </button>
+                <button id="rec-dismiss-btn" class="rec-btn-action rec-btn-cancel">
+                    <span>Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const $ = s => document.querySelector(s),
+            I = {
+                "logo": "assets/logo_goal_rush.png",
+                "logoicon": "assets/logo_icon.png",
+                "ball": "assets/ball.png",
+                "ballmo": "assets/ball_motion.png",
+                "goal": "assets/goal_post.png",
+                "gk": "assets/keeper_idle.png",
+                "gkl": "assets/keeper_dive_left.png",
+                "gkr": "assets/keeper_dive_right.png",
+                "striker": "assets/striker_kick.png",
+                "pwr0": "assets/power_bar_empty.png",
+                "pwr1": "assets/power_bar_full.png",
+                "board": "assets/scoreboard.png",
+                "b_shoot": "assets/btn_shoot.png",
+                "b_play": "assets/btn_play.png",
+                "b_again": "assets/btn_play_again.png",
+                "b_claim": "assets/btn_claim_reward.png",
+                "trophy": "assets/reward_trophy.png",
+                "medal": "assets/reward_medal.png",
+                "ticket": "assets/reward_ticket.png",
+                "star": "assets/reward_star.png",
+                "confetti": "assets/fx_confetti.png",
+                "goalb": "assets/badge_goal.png",
+                "missed": "assets/badge_missed.png",
+                "saved": "assets/badge_saved.png",
+                "shoe": "assets/prize_shoe.png",
+                "bottle": "assets/prize_bottle.png",
+                "jersey": "assets/prize_jersey.png",
+                "gift": "assets/prize_gift.png",
+                "tap": "assets/hint_tap_swipe.png",
+                "net": "assets/fx_net_ripple.png",
+                "spark": "assets/fx_sparkles.png",
+                "whistle": "assets/reward_whistle.png",
+                "card": "assets/yellow_card.png",
+                "icon": "assets/app_icon.png",
+                "target": "assets/target_zone.png",
+                "frame": "assets/phone_frame.png"
+            },
+            Q = s => [...document.querySelectorAll(s)];
+        Q('[data-i]').forEach(e => e.src = I[e.dataset.i]);
+        $('#frame').src = I.frame;
+        const go = id => Q('.scr').forEach(s => s.classList.toggle('on', s.id == id)),
+            pad = (n, l) => String(n).padStart(l, '0');
+        // scan
+        (function() {
+            const c = $('#qr'),
+                x = c.getContext('2d'),
+                n = 25,
+                s = c.width / n;
+            x.fillStyle = '#fff';
+            x.fillRect(0, 0, 260, 260);
+            let h = 11;
+            const r = () => (h = (h * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff,
+                F = [
+                    [0, 0],
+                    [n - 7, 0],
+                    [0, n - 7]
+                ];
+            for (let i = 0; i < n; i++)
+                for (let j = 0; j < n; j++) {
+                    const a = F.find(([p, q]) => i >= p && i < p + 7 && j >= q && j < q + 7);
+                    let on;
+                    if (a) {
+                        const u = i - a[0],
+                            v = j - a[1];
+                        on = u == 0 || u == 6 || v == 0 || v == 6 || (u > 1 && u < 5 && v > 1 && v < 5)
+                    } else on = r() > .52;
+                    if (on) {
+                        x.fillStyle = '#111';
+                        x.fillRect(i * s, j * s, s, s)
+                    }
+                }
+        })();
+        let player = {},
+            busy = 0;
+        $('#vf').onclick = () => {
+            if (busy) return;
+            busy = 1;
+            $('#vf').classList.add('scanning');
+            $('#vmsg').textContent = 'Scanning\u2026';
+            $('#tapi').style.visibility = 'hidden';
+            setTimeout(() => {
+                $('#vf').classList.remove('scanning');
+                $('#vmsg').textContent = 'Code verified \u2713'
+            }, 1500);
+            setTimeout(() => {
+                go('s-form');
+                busy = 0;
+                $('#n').focus({
+                    preventScroll: true
+                })
+            }, 2300)
+        };
+        // form
+        $('#f').onsubmit = e => {
+            e.preventDefault();
+            const v = id => $(id).value.trim(),
+                chk = [
+                    ['#n', v('#n').length >= 2, 'Enter your name'],
+                    ['#m', /^[6-9]\d{9}$/.test(v('#m')), 'Enter a valid 10-digit mobile'],
+                    ['#e', /^\S+@\S+\.\S+$/.test(v('#e')), 'Enter a valid email'],
+                    ['#c', v('#c').length >= 2, 'Enter your city']
+                ];
+            let ok = 1;
+            chk.forEach(([id, p, m]) => {
+                $(id).classList.toggle('bad', !p);
+                $(id).nextElementSibling.textContent = p ? '' : m;
+                if (!p) ok = 0
+            });
+            if (!ok) return;
+            player = {
+                name: v('#n'),
+                phone: v('#m'),
+                email: v('#e'),
+                city: v('#c'),
+                at: new Date().toISOString()
+            };
+            try {
+                const L = JSON.parse(localStorage.getItem('gr_leads') || '[]');
+                L.push(player);
+                localStorage.setItem('gr_leads', JSON.stringify(L))
+            } catch (_) {}
+            start(true)
+        };
+        // game
+        const G = {},
+            COL = [20, 50, 80],
+            sleep = ms => new Promise(r => setTimeout(r, ms));
+        // sprite frames cut from the pose sheet (keeper_0..5, striker_0..5)
+        const KS = [246, 250, 245, 352, 380, 280],
+            SS = [147, 244, 285, 317, 333, 227],
+            KW = KS.map(w => w * .1016),
+            SW = SS.map(w => w * .07);
+        for (let i = 0; i < 6; i++) {
+            new Image().src = 'assets/keeper_' + i + '.png';
+            new Image().src = 'assets/striker_' + i + '.png'
+        }
+
+        function setK(f, flip) {
+            const k = $('#gk');
+            k.src = 'assets/keeper_' + f + '.png';
+            k.style.width = KW[f] + '%';
+            k.classList.toggle('fl', !!flip)
+        }
+
+        function setS(f) {
+            const s = $('#st');
+            s.src = 'assets/striker_' + f + '.png';
+            s.style.width = SW[f] + 'cqw'
+        }
+
+        function idle() {
+            clearInterval(G.sw);
+            let f = 0;
+            G.sw = setInterval(() => {
+                f ^= 1;
+                setK(f)
+            }, 480)
+        }
+        async function strikerKick() {
+            const s = $('#st');
+            setS(1);
+            s.style.left = '26cqw';
+            await sleep(170);
+            setS(2);
+            s.style.left = '32cqw';
+            await sleep(170);
+            setS(3);
+            s.style.left = '35cqw';
+            await sleep(140);
+            setS(4);
+            s.style.left = '37cqw';
+            await sleep(70)
+        }
+        async function keeperDive(c, r) {
+            const k = $('#gk');
+            if (c == 1) {
+                setK(r == 0 ? 2 : 5, 0);
+                k.style.bottom = '3%';
+                return
+            }
+            const right = c == 2;
+            setK(2, right);
+            k.style.bottom = '3%';
+            await sleep(110);
+            setK(3, !right);
+            k.style.left = COL[c] + '%';
+            k.style.bottom = (r == 0 ? 38 : 10) + '%';
+            await sleep(200);
+            setK(4, !right)
+        }
+        const mk1 = document.createElement('img');
+        mk1.src = I.target;
+        mk1.className = 'tg';
+        mk1.alt = 'Aim point';
+        mk1.style.display = 'none';
+        mk1.style.pointerEvents = 'none';
+        $('#goalw').appendChild(mk1);
+        const tgs = [mk1];
+        $('#goalw').addEventListener('click', e => {
+            if (G.busy) return;
+            const r = $('#goalw').getBoundingClientRect(),
+                fx = Math.min(.97, Math.max(.03, (e.clientX - r.left) / r.width)),
+                fy = Math.min(.93, Math.max(.12, (e.clientY - r.top) / r.height));
+            mk1.style.display = 'block';
+            mk1.style.left = fx * 100 + '%';
+            mk1.style.top = fy * 100 + '%';
+            aim(fx < .34 ? 0 : fx < .67 ? 1 : 2, fy < .5 ? 0 : 1, mk1)
+        });
+
+        function hud() {
+            $('#sc').textContent = pad(G.score, 4);
+            $('#at').textContent = G.att + '/3';
+            Q('.bl').forEach((b, i) => b.classList.toggle('u', i < G.att))
+        }
+
+        function tick() {
+            const s = Math.floor((Date.now() - G.t0) / 1000);
+            $('#tm').textContent = pad(Math.floor(s / 60), 2) + ':' + pad(s % 60, 2)
+        }
+
+        function reset() {
+            G.t = null;
+            G.busy = 0;
+            cancelAnimationFrame(G.raf);
+            tgs.forEach(t => {
+                t.classList.remove('sel');
+                t.style.display = 'none'
+            });
+            $('#sh').disabled = true;
+            $('#mk').style.left = '0';
+            const b = $('#ball');
+            b.style.transition = 'none';
+            b.style.transform = 'none';
+            b.style.opacity = 1;
+            const k = $('#gk');
+            k.style.left = '50%';
+            k.style.bottom = '3%';
+            setK(0);
+            idle();
+            const st = $('#st');
+            st.style.transition = 'none';
+            st.style.left = '20cqw';
+            setS(0);
+            void st.offsetWidth;
+            st.style.transition = '';
+            $('#badge').classList.remove('on');
+            $('#hint').textContent = G.retried ? 'FREE RETRY \u00b7 tap the goal to aim' : 'Tap anywhere in the goal to aim'
+        }
+
+        function start(fresh) {
+            clearTimeout(G.nd);
+            $('#ntf').classList.remove('on');
+            if (fresh) G.retried = false;
+            Object.assign(G, {
+                score: 0,
+                att: 0,
+                goals: 0,
+                t0: Date.now()
+            });
+            clearInterval(G.iv);
+            G.iv = setInterval(tick, 500);
+            hud();
+            reset();
+            go('s-game')
+        }
+
+        function aim(c, r, el) {
+            if (G.busy) return;
+            G.t = {
+                c,
+                r,
+                el
+            };
+            tgs.forEach(t => t.classList.toggle('sel', t === el));
+            $('#sh').disabled = false;
+            $('#hint').textContent = 'Stop the marker in the green zone, then shoot';
+            cancelAnimationFrame(G.raf);
+            const t0 = performance.now();
+            const loop = n => {
+                G.p = (1 - Math.cos((n - t0) * .0042)) / 2;
+                $('#mk').style.left = (G.p * 100) + '%';
+                G.raf = requestAnimationFrame(loop)
+            };
+            G.raf = requestAnimationFrame(loop)
+        }
+        $('#sh').onclick = async () => {
+            if (!G.t || G.busy) return;
+            G.busy = 1;
+            cancelAnimationFrame(G.raf);
+            $('#sh').disabled = true;
+            const {
+                c,
+                r,
+                el
+            } = G.t, p = G.p;
+            const kc = Math.random() < (p > .8 || p < .45 ? .6 : .33) ? c : [0, 1, 2].filter(x => x !== c)[Math.random() * 2 | 0],
+                kr = Math.random() < .5 ? c === kc ? r : r : 1 - r;
+            let res = p < .18 ? 'saved' : p > .93 ? 'missed' : (kc === c && (Math.random() < .5 || kr === r)) ? 'saved' : 'goal';
+            if (p < .18) {
+                G.k = [c, r]
+            }
+            const sr = $('#s-game').getBoundingClientRect(),
+                b = $('#ball'),
+                br = b.getBoundingClientRect(),
+                tr = el.getBoundingClientRect(),
+                gr = $('#goalw').getBoundingClientRect();
+            let tx = tr.left + tr.width / 2,
+                ty = tr.top + tr.height / 2;
+            if (res == 'missed') {
+                ty = gr.top - sr.width * .1;
+                tx += (tx > sr.left + sr.width / 2 ? 1 : -1) * sr.width * .08
+            }
+            clearInterval(G.sw);
+            await strikerKick();
+            b.style.transition = 'transform .62s cubic-bezier(.15,.7,.3,1)';
+            b.style.transform = `translate(${tx-br.left-br.width/2}px,${ty-br.top-br.height/2}px) scale(.5)`;
+            const kcc = res == 'saved' ? c : kc,
+                krr = res == 'saved' ? r : kr,
+                k = $('#gk');
+            await sleep(100);
+            keeperDive(kcc, krr);
+            await sleep(520);
+            if (res == 'saved') {
+                b.style.transition = 'transform .5s ease-out';
+                b.style.transform += ` translate(${(kcc-1)*9}px,${sr.width*.1}px)`
+            }
+            const bd = $('#badge');
+            bd.src = I[res == 'goal' ? 'goalb' : res == 'saved' ? 'saved' : 'missed'];
+            bd.classList.add('on');
+            if (res == 'goal') {
+                G.goals++;
+                G.score += 100 + (p > .5 && p < .75 ? 50 : 0);
+                burst();
+                setS(5)
+            }
+            G.att++;
+            hud();
+            if (kcc !== 1) setTimeout(() => {
+                setK(5, kcc == 0);
+                k.style.bottom = '3%'
+            }, 700);
+            await sleep(1700);
+            if (G.att >= 3) {
+                clearInterval(G.iv);
+                clearInterval(G.sw);
+                if (G.goals == 0 && !G.retried) retry();
+                else reward()
+            } else reset()
+        };
+
+        function burst() {
+            const cs = ['#ff7a1a', '#b6ff3b', '#ffd23b', '#fff'];
+            for (let i = 0; i < 26; i++) {
+                const e = document.createElement('i');
+                e.className = 'px';
+                e.style.cssText = `left:${Math.random()*100}%;top:-4cqw;background:${cs[i%4]};animation-delay:${Math.random()*.6}s;animation-duration:${2+Math.random()*1.4}s`;
+                $('#s-game').appendChild(e);
+                setTimeout(() => e.remove(), 4200)
+            }
+        }
+        // reward
+        const T = [{
+            p: 'ticket',
+            t: 'Second half',
+            z: '5% off coupon'
+        }, {
+            p: 'bottle',
+            t: 'Rookie',
+            z: 'Sports bottle'
+        }, {
+            p: 'jersey',
+            t: 'Pro Striker',
+            z: 'Team jersey'
+        }, {
+            p: 'gift',
+            t: 'Golden Boot',
+            z: 'Mystery gift hamper'
+        }];
+        let sd = 0,
+            lp = null,
+            mv = 0,
+            dn = 0,
+            st = 0;
+        const cv = $('#sc2'),
+            cx = cv.getContext('2d');
+
+        function foil() {
+            const r = cv.getBoundingClientRect(),
+                d = Math.min(2, window.devicePixelRatio || 1);
+            cv.width = Math.round(r.width * d);
+            cv.height = Math.round(r.height * d);
+            const w = cv.width,
+                h = cv.height;
+            cx.globalCompositeOperation = 'source-over';
+            let g = cx.createLinearGradient(0, 0, w, h);
+            [
+                [0, '#d9dde3'],
+                [.25, '#f6f7f9'],
+                [.5, '#b9bec7'],
+                [.75, '#eef0f3'],
+                [1, '#a7adb7']
+            ].forEach(([o, c]) => g.addColorStop(o, c));
+            cx.fillStyle = g;
+            cx.fillRect(0, 0, w, h);
+            cx.globalAlpha = .2;
+            cx.strokeStyle = '#6b7280';
+            cx.lineWidth = d;
+            for (let i = -h; i < w; i += 7 * d) {
+                cx.beginPath();
+                cx.moveTo(i, 0);
+                cx.lineTo(i + h, h);
+                cx.stroke()
+            }
+            cx.globalAlpha = 1;
+            const bh = h * .3,
+                by = (h - bh) / 2,
+                g2 = cx.createLinearGradient(0, by, 0, by + bh);
+            g2.addColorStop(0, '#ff9a45');
+            g2.addColorStop(1, '#e8570a');
+            cx.fillStyle = g2;
+            cx.fillRect(0, by, w, bh);
+            cx.fillStyle = 'rgba(255,255,255,.35)';
+            cx.fillRect(0, by, w, d * 2);
+            document.fonts.ready.then(() => {
+                cx.fillStyle = '#fff';
+                cx.textAlign = 'center';
+                cx.textBaseline = 'middle';
+                cx.font = `${h*.13}px Anton,Impact,sans-serif`;
+                cx.fillText('SCRATCH & WIN', w / 2, by + bh / 2 + d);
+                const im = new Image();
+                im.onload = () => {
+                    const s = h * .13;
+                    [
+                        [.13, .13],
+                        [.87, .13],
+                        [.13, .87],
+                        [.87, .87]
+                    ].forEach(([a, b]) => cx.drawImage(im, w * a - s / 2, h * b - s / 2, s, s))
+                };
+                im.src = I.ball
+            })
+        }
+        const pt = e => {
+            const r = cv.getBoundingClientRect();
+            return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]
+        };
+
+        function sc(a, b) {
+            cx.globalCompositeOperation = 'destination-out';
+            cx.lineCap = cx.lineJoin = 'round';
+            cx.lineWidth = cv.width * .11;
+            cx.beginPath();
+            cx.moveTo(a[0], a[1]);
+            cx.lineTo(b[0] + .01, b[1]);
+            cx.stroke()
+        }
+
+        function chk() {
+            if (dn) return;
+            const w = cv.width,
+                h = cv.height,
+                D = cx.getImageData(0, 0, w, h).data;
+            let n = 0,
+                c = 0;
+            for (let y = 0; y < h; y += 10)
+                for (let x = 0; x < w; x += 10) {
+                    n++;
+                    if (D[(y * w + x) * 4 + 3] < 30) c++
+                }
+            if (c / n > .35) reveal()
+        }
+        cv.onpointerdown = e => {
+            if (dn) return;
+            if (!st) st = setTimeout(reveal, 3000);
+            sd = 1;
+            cv.setPointerCapture(e.pointerId);
+            lp = pt(e);
+            sc(lp, lp)
+        };
+
+        function flake(e) {
+            const b = $('.cb'),
+                r = b.getBoundingClientRect(),
+                f = document.createElement('i');
+            f.className = 'fk';
+            f.style.left = (e.clientX - r.left) + 'px';
+            f.style.top = (e.clientY - r.top) + 'px';
+            f.style.setProperty('--dx', (Math.random() * 40 - 20) + 'px');
+            b.appendChild(f);
+            setTimeout(() => f.remove(), 750)
+        }
+        cv.tabIndex = 0;
+        cv.onkeydown = e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                reveal()
+            }
+        };
+        cv.onpointermove = e => {
+            if (!sd || dn) return;
+            const p = pt(e);
+            sc(lp, p);
+            lp = p;
+            if (++mv % 3 == 0) flake(e);
+            if (mv % 6 == 0) chk()
+        };
+        cv.onpointerup = cv.onpointercancel = () => {
+            sd = 0;
+            chk()
+        };
+
+        function reveal() {
+            if (dn) return;
+            dn = 1;
+            clearTimeout(st);
+            $('#s-rew').classList.add('open');
+            const cs = ['#ff7a1a', '#b6ff3b', '#ffd23b', '#fff'];
+            for (let i = 0; i < 30; i++) {
+                const e = document.createElement('i');
+                e.className = 'px';
+                e.style.cssText = `left:${Math.random()*100}%;top:-4cqw;background:${cs[i%4]};animation-delay:${Math.random()*.8}s;animation-duration:${2+Math.random()*1.4}s`;
+                $('#s-rew').appendChild(e);
+                setTimeout(() => e.remove(), 4600)
+            }
+        }
+
+        function reward() {
+            const t = T[G.goals];
+            dn = 0;
+            clearTimeout(st);
+            st = 0;
+            $('#s-rew').classList.remove('open');
+            $('#rs2').textContent = `${G.goals} goal${G.goals==1?'':'s'} scored \u00b7 Score ${pad(G.score,4)}${G.retried?' \u00b7 Retry round':''}`;
+            $('#balls').innerHTML = [0, 1, 2].map(i => `<img src="${I.ball}" class="${i<G.goals?'':'m'}" alt="">`).join('');
+            $('#r1').src = I[t.p];
+            $('#rk').textContent = t.t.toUpperCase();
+            $('#rp').textContent = t.z;
+            G.code = 'GR-' + Math.random().toString(36).slice(2, 7).toUpperCase();
+            $('#cno').textContent = 'NO. ' + pad(Math.floor(Math.random() * 9999), 4);
+            $('#rtxt').textContent = 'CLAIM YOUR REWARD';
+            $('#rn').textContent = 'Coupon code will be sent via notification' + (player.name ? ' \u00b7 ' + player.name : '');
+            $('#rbtn').style.display = 'block';
+            $('#again').style.display = 'none';
+            go('s-rew');
+            requestAnimationFrame(() => requestAnimationFrame(foil))
+        }
+        $('#rbtn').onclick = () => {
+            $('#rbtn').style.display = 'none';
+            $('#again').style.display = 'block';
+            $('#rtxt').textContent = 'REWARD CLAIMED!';
+            $('#rn').textContent = 'Coupon code sent via notification' + (player.phone ? ' to +91 ' + player.phone : '') + '. Show it at the counter.';
+            notifyLater(`Your reward code ${G.code} is confirmed. Sent to +91 ${player.phone}. Show it at the counter.`)
+        };
+
+        function notify(text, fn, ms) {
+            const n = $('#ntf');
+            $('#nb').textContent = text;
+            G.nfn = fn || null;
+            n.classList.add('on');
+            try {
+                navigator.vibrate && navigator.vibrate(40)
+            } catch (_) {}
+            clearTimeout(G.nt);
+            G.nt = setTimeout(() => n.classList.remove('on'), ms || 5000)
+        }
+        // message arrives 3 seconds later (never instant)
+        function notifyLater(text, fn, ms) {
+            clearTimeout(G.nd);
+            G.nd = setTimeout(() => notify(text, fn, ms), 3000)
+        }
+        $('#ntf').onclick = () => {
+            $('#ntf').classList.remove('on');
+            const f = G.nfn;
+            G.nfn = null;
+            f && f()
+        };
+        // zero goals -> one free retry, announced by a delayed message
+        function retry() {
+            G.retried = true;
+            $('#rtbtn').style.display = 'none';
+            $('#rtx').innerHTML = 'Hold on&hellip; a message is on its way.';
+            go('s-retry');
+            notifyLater('No goals this round, but you get ONE free retry! Tap to play again.', startRetry, 9000);
+            clearTimeout(G.rb);
+            G.rb = setTimeout(() => {
+                $('#rtx').textContent = 'You get one free retry. Score this time and win a bigger prize!';
+                $('#rtbtn').style.display = 'block'
+            }, 3000)
+        }
+
+        function startRetry() {
+            clearTimeout(G.nd);
+            clearTimeout(G.rb);
+            $('#ntf').classList.remove('on');
+            start(false)
+        }
+        $('#rtbtn').onclick = startRetry;
+        $('#again').onclick = () => start(true);
+
+        // RecordRTC Live Screen Recorder
+        (function() {
+            let rtcRecorder = null;
+            let mediaStream = null;
+            let recordTimer = null;
+            let recordSeconds = 0;
+            let isPaused = false;
+            let recordedBlob = null;
+
+            const startBtn = document.getElementById('rec-start-btn');
+            const recBar = document.getElementById('rec-bar');
+            const timerEl = document.getElementById('rec-timer');
+            const labelEl = document.getElementById('rec-label');
+            const pauseBtn = document.getElementById('rec-pause-btn');
+            const stopBtn = document.getElementById('rec-stop-btn');
+            const modalEl = document.getElementById('rec-modal');
+            const videoEl = document.getElementById('rec-video');
+            const downloadBtn = document.getElementById('rec-download-btn');
+            const closeBtn = document.getElementById('rec-close-btn');
+            const dismissBtn = document.getElementById('rec-dismiss-btn');
+
+            function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+            function updateTimer() {
+                recordSeconds++;
+                const m = Math.floor(recordSeconds / 60);
+                const s = recordSeconds % 60;
+                timerEl.textContent = pad2(m) + ':' + pad2(s);
+            }
+
+            async function startLiveRecord() {
+                try {
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+                        alert('Live screen recording is not supported in this browser. Please use Chrome, Edge, or Firefox on desktop.');
+                        return;
+                    }
+                    mediaStream = await navigator.mediaDevices.getDisplayMedia({
+                        video: {
+                            displaySurface: 'browser',
+                            frameRate: { ideal: 60, max: 60 }
+                        },
+                        audio: true
+                    });
+
+                    // If user clicks browser's native "Stop sharing" bar
+                    const track = mediaStream.getVideoTracks()[0];
+                    if (track) {
+                        track.onended = () => {
+                            if (rtcRecorder && rtcRecorder.state !== 'stopped') {
+                                stopLiveRecord();
+                            }
+                        };
+                    }
+
+                    if (typeof RecordRTC !== 'undefined') {
+                        rtcRecorder = new RecordRTC(mediaStream, {
+                            type: 'video',
+                            mimeType: 'video/webm;codecs=vp9',
+                            disableLogs: true
+                        });
+                        rtcRecorder.startRecording();
+                    } else {
+                        // Native MediaRecorder fallback
+                        let chunks = [];
+                        const mr = new MediaRecorder(mediaStream, { mimeType: 'video/webm' });
+                        mr.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+                        mr.start(250);
+                        rtcRecorder = {
+                            native: mr,
+                            state: 'recording',
+                            pauseRecording() { mr.pause(); this.state = 'paused'; },
+                            resumeRecording() { mr.resume(); this.state = 'recording'; },
+                            stopRecording(cb) {
+                                mr.onstop = () => {
+                                    recordedBlob = new Blob(chunks, { type: 'video/webm' });
+                                    this.state = 'stopped';
+                                    cb && cb();
+                                };
+                                mr.stop();
+                            },
+                            getBlob() { return recordedBlob; }
+                        };
+                    }
+
+                    recordSeconds = 0;
+                    isPaused = false;
+                    timerEl.textContent = '00:00';
+                    labelEl.textContent = 'REC';
+                    pauseBtn.textContent = '⏸';
+                    clearInterval(recordTimer);
+                    recordTimer = setInterval(updateTimer, 1000);
+
+                    startBtn.style.display = 'none';
+                    recBar.style.display = 'flex';
+                } catch (err) {
+                    console.log('Record cancelled or error:', err);
+                }
+            }
+
+            function pauseLiveRecord() {
+                if (!rtcRecorder) return;
+                if (!isPaused) {
+                    isPaused = true;
+                    if (rtcRecorder.pauseRecording) rtcRecorder.pauseRecording();
+                    clearInterval(recordTimer);
+                    labelEl.textContent = 'PAUSED';
+                    pauseBtn.textContent = '▶';
+                } else {
+                    isPaused = false;
+                    if (rtcRecorder.resumeRecording) rtcRecorder.resumeRecording();
+                    recordTimer = setInterval(updateTimer, 1000);
+                    labelEl.textContent = 'REC';
+                    pauseBtn.textContent = '⏸';
+                }
+            }
+
+            function stopLiveRecord() {
+                if (!rtcRecorder) return;
+                clearInterval(recordTimer);
+                recBar.style.display = 'none';
+                startBtn.style.display = 'flex';
+
+                const onDone = () => {
+                    const blob = (typeof rtcRecorder.getBlob === 'function') ? rtcRecorder.getBlob() : recordedBlob;
+                    recordedBlob = blob;
+
+                    // Stop all stream tracks
+                    if (mediaStream) {
+                        mediaStream.getTracks().forEach(t => t.stop());
+                        mediaStream = null;
+                    }
+
+                    if (blob) {
+                        videoEl.src = URL.createObjectURL(blob);
+                        modalEl.style.display = 'flex';
+                    }
+                    rtcRecorder = null;
+                };
+
+                if (rtcRecorder.stopRecording) {
+                    rtcRecorder.stopRecording(onDone);
+                } else {
+                    onDone();
+                }
+            }
+
+            function closeModal() {
+                modalEl.style.display = 'none';
+                if (videoEl.src) {
+                    videoEl.pause();
+                    URL.revokeObjectURL(videoEl.src);
+                    videoEl.removeAttribute('src');
+                }
+            }
+
+            function downloadRecording() {
+                if (!recordedBlob) return;
+                const fileName = 'goal-rush-recording-' + Date.now() + '.webm';
+                if (typeof RecordRTC !== 'undefined' && RecordRTC.invokeSaveAsDialog) {
+                    RecordRTC.invokeSaveAsDialog(recordedBlob, fileName);
+                } else {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(recordedBlob);
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => a.remove(), 100);
+                }
+            }
+
+            startBtn.addEventListener('click', startLiveRecord);
+            pauseBtn.addEventListener('click', pauseLiveRecord);
+            stopBtn.addEventListener('click', stopLiveRecord);
+            closeBtn.addEventListener('click', closeModal);
+            dismissBtn.addEventListener('click', closeModal);
+            downloadBtn.addEventListener('click', downloadRecording);
+        })();
+    </script>
+</body>
+
+</html>
